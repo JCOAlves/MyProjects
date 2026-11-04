@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Parte Backend do sistema MyProjects",
+  "main": "App.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsx --watch App.ts || node --watch App.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6",
+    "sequelize": "^7.0.0-alpha.9",
+    "tsx": "^4.23.15"
+  },
+  "overrides": {
+    "uuid": "^11.1.1",
+    "dottie": "^2.0.4",
+    "lodash": "^4.18.0",
+    "validator": "^13.15.21"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
