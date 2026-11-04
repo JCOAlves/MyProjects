@@ -1,0 +1,1 @@
+Pasta com os objetos Sequelize da aplicação

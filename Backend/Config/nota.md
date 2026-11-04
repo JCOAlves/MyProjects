@@ -1,0 +1,1 @@
+Pasta com os scripts de configuração da API
