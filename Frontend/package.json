@@ -8,6 +8,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "setup": "[ -e \"src/environments/.env\" ] && echo \".env file already exists\" || cp src/environments/.env.example src/environments/.env && echo \".env file created\"",
     "test": "ng test"
   },
   "private": true,
@@ -26,6 +27,7 @@
     "@angular/build": "^22.2.5",
     "@angular/cli": "^22.2.5",
     "@angular/compiler-cli": "^22.2.0",
+    "@ngx-env/builder": "^22.0.0",
     "@tailwindcss/postcss": "^4.1.12",
     "jsdom": "^30.0.0",
     "postcss": "^8.5.3",
