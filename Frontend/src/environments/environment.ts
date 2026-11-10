@@ -5,4 +5,4 @@ const environment = {
     debug: import.meta.env.NG_APP_DEBUG_MODE === "true" || true
 };
 
-export default environment
+export default environment;

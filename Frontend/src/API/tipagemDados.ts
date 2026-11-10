@@ -23,6 +23,6 @@ export type RespostaHTTP = {
     sucesso: boolean,
     status: number,
     mensagem: string,
-    dados?: Dados,
+    dados?: DadosRequisicao,
     erro?: Error | TypeError | null | any;
 };
