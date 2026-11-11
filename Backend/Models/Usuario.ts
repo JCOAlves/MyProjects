@@ -1,6 +1,7 @@
-// Modelo Sequelize de objeto
+// Modelo Sequelize de Usuário
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from '@sequelize/core';
 import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table } from '@sequelize/core/decorators-legacy';
+import { deflate } from 'node:zlib';
 
 @Table({
     // Por padrão o Sequelize plurariza o nome das tabelas
@@ -26,4 +27,6 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
     @Attribute(DataTypes.STRING)
     @NotNull
     declare senhaUsuario: string;
-}
+};
+
+export default Usuario;
