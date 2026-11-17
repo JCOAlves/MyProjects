@@ -1,5 +1,6 @@
 import express, { type Express, type Request, type Response } from "express";
 import verificacaoBD from "./Config/verificacaoBD.ts";
+import CORS from "./Config/CORS.ts";
 import dotenv from "dotenv";
 
 // Subrotas
@@ -14,6 +15,7 @@ const app: Express = express();
 const PORT: number = Number(process.env.PORT) || 3000;
 
 verificacaoBD();
+app.use(CORS);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
