@@ -1,5 +1,5 @@
 // Modelo Sequelize de Permissão de usuário
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
+import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute, type ForeignKey } from '@sequelize/core';
 import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default, BelongsTo } from '@sequelize/core/decorators-legacy';
 import Usuario from './Usuario.ts';
 import Projeto from './Projeto.ts';
@@ -22,7 +22,15 @@ class Permissao extends Model<InferAttributes<Permissao>, InferCreationAttribute
 
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
-    declare valorPermissao: CreationOptional<number>
+    declare valorPermissao: number;
+
+    @Attribute({ type: DataTypes.INTEGER })
+    @NotNull
+    declare ID_usuario: ForeignKey<Usuario["ID_usuario"]>
+
+    @Attribute({ type: DataTypes.INTEGER })
+    @NotNull
+    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>
 
     @BelongsTo(() => Usuario, "ID_usuario")
     declare usuario?: NonAttribute<Usuario>

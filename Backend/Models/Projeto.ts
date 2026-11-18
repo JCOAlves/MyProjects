@@ -16,34 +16,37 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     declare ID_projeto: CreationOptional<number>;
 
     @Attribute({
-        type: DataTypes.STRING, validate: {
+        type: DataTypes.STRING(120), validate: {
             validacaoNome(nomeProjeto: string) {
-                if (nomeProjeto.trim().length > 120) {
+                if (nomeProjeto.trim().length > 120) 
                     throw new Error("Nome de projeto ultrapassou limite de 120 caracteres do banco de dados.");
-                };
+                
+                else if(nomeProjeto.trim().length === 0)
+                    throw new Error("Nome de projeto composto apenas por espaços ou nome invalido.");
             }
         }
     })
     @NotNull
     @Default("Sem Nome")
-    declare nomeProjeto: string
+    declare nomeProjeto: CreationOptional<string>;
 
     @Attribute({ type: DataTypes.TEXT })
     @NotNull
-    declare descricaoProjeto: string
+    declare descricaoProjeto: string;
 
     @Attribute({ type: DataTypes.DATE })
     @NotNull
-    declare dataEntrega: CreationOptional<Date>
+    declare dataEntrega: Date;
 
     @Attribute({ type: DataTypes.BOOLEAN })
     @NotNull
     @Default(false)
-    declare projetoPublico: CreationOptional<boolean>
+    declare projetoPublico: CreationOptional<boolean>;
 
     @Attribute({ type: DataTypes.ENUM("Não Iniciado", "Em Desenvolvimento", "Concluído") })
+    @NotNull
     @Default("Não Iniciado")
-    declare statusProjeto: string;
+    declare statusProjeto: CreationOptional<"Não Iniciado" | "Em Desenvolvimento" | "Concluído">;
 
     @Attribute({ type: DataTypes.DATE })
     @NotNull
@@ -54,6 +57,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
         through: () => Usuario_projeto,
         foreignKey: "ID_projeto",
         otherKey: "ID_usuario",
+        inverse: { as: "usuarios" }
     })
     declare usuarios?: NonAttribute<Usuario[]>;
 };

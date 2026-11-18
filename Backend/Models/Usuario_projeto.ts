@@ -15,11 +15,11 @@ class Usuario_projeto extends Model<InferAttributes<Usuario_projeto>, InferCreat
 
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
-    declare ID_usuario: CreationOptional<number>
+    declare ID_usuario: number;
 
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
-    declare ID_projeto: CreationOptional<number>
+    declare ID_projeto: number;
 };
 
 export default Usuario_projeto;

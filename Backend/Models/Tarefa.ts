@@ -1,5 +1,5 @@
 // Modelo Sequelize de tarefa
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
+import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute, type ForeignKey } from '@sequelize/core';
 import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, BelongsTo, Default } from '@sequelize/core/decorators-legacy';
 import validator from "validator";
 import Projeto from './Projeto.ts';
@@ -58,12 +58,16 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
 
     @Attribute({ type: DataTypes.ENUM("Não Iniciada", "Em Desenvolvimento", "Concluída") })
     @Default("Não Iniciada")
-    declare statusTarefa: string;
+    declare statusTarefa: CreationOptional<string>;
 
     @Attribute({ type: DataTypes.DATE })
     @NotNull
     @Default(DataTypes.NOW)
     declare dataCriacao: CreationOptional<Date>;
+
+    @Attribute({ type: DataTypes.INTEGER })
+    @NotNull
+    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>
 
     @BelongsTo(() => Projeto, "ID_projeto")
     declare projeto?: NonAttribute<Projeto>

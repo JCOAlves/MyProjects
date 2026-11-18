@@ -1,5 +1,5 @@
 // Modelo Sequelize de Anotação
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
+import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute, type ForeignKey } from '@sequelize/core';
 import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, BelongsTo, Default } from '@sequelize/core/decorators-legacy';
 import Projeto from './Projeto.ts';
 
@@ -14,7 +14,14 @@ class Anotacao extends Model<InferAttributes<Anotacao>, InferCreationAttributes<
     @AutoIncrement
     declare ID_anotacao: CreationOptional<number>;
 
-    @Attribute({ type: DataTypes.TEXT })
+    @Attribute({
+        type: DataTypes.TEXT, validate: {
+            validacaoTexto(textoAnotacao: string) {
+                if (textoAnotacao.trim().length === 0)
+                    throw new Error("Texto de anotação não foi fornecido ou texto composto apenas por espaços.");
+            }
+        }
+    })
     @NotNull
     declare textoAnotacao: string;
 
@@ -22,6 +29,10 @@ class Anotacao extends Model<InferAttributes<Anotacao>, InferCreationAttributes<
     @NotNull
     @Default(DataTypes.NOW)
     declare dataCriacao: CreationOptional<Date>;
+
+    @Attribute({ type: DataTypes.INTEGER })
+    @NotNull
+    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>
 
     @BelongsTo(() => Projeto, "ID_projeto")
     declare projeto?: NonAttribute<Projeto>
