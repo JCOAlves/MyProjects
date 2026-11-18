@@ -13,7 +13,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
     @AutoIncrement
     declare ID_tarefa: CreationOptional<number>;
 
-    // ...
+    // Adicionar outras colunas ...
 };
 
 export default Tarefa;

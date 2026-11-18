@@ -1,7 +1,9 @@
 // Modelo Sequelize de Usuário
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from '@sequelize/core';
-import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table } from '@sequelize/core/decorators-legacy';
+import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
+import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, BelongsToMany } from '@sequelize/core/decorators-legacy';
 import validator from "validator";
+import Projeto from './Projeto.ts';
+import Usuario_projeto from './Usuario_projeto.ts';
 
 @Table({
     // Por padrão o Sequelize plurariza o nome das tabelas
@@ -70,6 +72,13 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
     })
     @NotNull
     declare senhaUsuario: string;
+
+    @BelongsToMany(() => Projeto, {
+        through: () => Usuario_projeto,
+        foreignKey: "ID_usuario",
+        otherKey: "ID_projeto",
+    })
+    declare projetos?: NonAttribute<Projeto[]>
 };
 
 export default Usuario;

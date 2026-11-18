@@ -1,6 +1,8 @@
 // Modelo Sequelize de Projeto
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from '@sequelize/core';
-import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default } from '@sequelize/core/decorators-legacy';
+import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
+import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default, BelongsToMany } from '@sequelize/core/decorators-legacy';
+import Usuario from './Usuario.ts';
+import Usuario_projeto from './Usuario_projeto.ts';
 
 @Table({
     tableName: "projeto", // Nome EXATO da tabela no seu MySQL
@@ -30,6 +32,21 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     @NotNull
     declare descricaoProjeto: string
 
+    @Attribute({ type: DataTypes.DATE })
+    @NotNull
+    declare dataEntrega: CreationOptional<Date>
+
+    @Attribute({ type: DataTypes.BOOLEAN })
+    @NotNull
+    @Default(false)
+    declare projetoPublico: CreationOptional<boolean>
+
+    @BelongsToMany(() => Usuario, {
+        through: () => Usuario_projeto,
+        foreignKey: "ID_projeto",
+        otherKey: "ID_usuario",
+    })
+    declare usuarios?: NonAttribute<Usuario[]>;
 };
 
 export default Projeto;
