@@ -41,6 +41,15 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     @Default(false)
     declare projetoPublico: CreationOptional<boolean>
 
+    @Attribute({ type: DataTypes.ENUM("Não Iniciado", "Em Desenvolvimento", "Concluído") })
+    @Default("Não Iniciado")
+    declare statusProjeto: string;
+
+    @Attribute({ type: DataTypes.DATE })
+    @NotNull
+    @Default(DataTypes.NOW)
+    declare dataCriacao: CreationOptional<Date>;
+
     @BelongsToMany(() => Usuario, {
         through: () => Usuario_projeto,
         foreignKey: "ID_projeto",

@@ -16,7 +16,7 @@ class Permissao extends Model<InferAttributes<Permissao>, InferCreationAttribute
     @AutoIncrement
     declare ID_permissao: CreationOptional<number>;
 
-    @Attribute({ type: DataTypes.ENUM("", "", "", "") })
+    @Attribute({ type: DataTypes.ENUM("R-PTA", "CRUD-A", "CRUD-TA") })
     @NotNull
     declare tipoPermissao: string
 
