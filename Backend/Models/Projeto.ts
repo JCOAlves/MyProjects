@@ -1,6 +1,6 @@
 // Modelo Sequelize de Projeto
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
-import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default, BelongsToMany } from '@sequelize/core/decorators-legacy';
+import { Attribute, PrimaryKey, AutoIncrement, NotNull, Table, Default, BelongsToMany } from '@sequelize/core/decorators-legacy';
 import validator from "validator";
 import Usuario from './Usuario.ts';
 import Usuario_projeto from './Usuario_projeto.ts';

@@ -1,6 +1,6 @@
 // Modelo Sequelize de tabela intermediaria de usuários e Usuario_projetos
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from '@sequelize/core';
-import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default } from '@sequelize/core/decorators-legacy';
+import { Attribute, PrimaryKey, AutoIncrement, NotNull, Table } from '@sequelize/core/decorators-legacy';
 
 // Tabela intermediaria de Usuários e Projetos
 @Table({

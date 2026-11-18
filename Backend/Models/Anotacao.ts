@@ -1,6 +1,6 @@
 // Modelo Sequelize de Anotação
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute, type ForeignKey } from '@sequelize/core';
-import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, BelongsTo, Default } from '@sequelize/core/decorators-legacy';
+import { Attribute, PrimaryKey, AutoIncrement, NotNull, Table, BelongsTo, Default } from '@sequelize/core/decorators-legacy';
 import Projeto from './Projeto.ts';
 
 @Table({

@@ -1,6 +1,6 @@
 // Modelo Sequelize de Permissão de usuário
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute, type ForeignKey } from '@sequelize/core';
-import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default, BelongsTo } from '@sequelize/core/decorators-legacy';
+import { Attribute, PrimaryKey, AutoIncrement, NotNull, Table, BelongsTo } from '@sequelize/core/decorators-legacy';
 import Usuario from './Usuario.ts';
 import Projeto from './Projeto.ts';
 
@@ -17,7 +17,7 @@ class Permissao extends Model<InferAttributes<Permissao>, InferCreationAttribute
 
     @Attribute({ type: DataTypes.ENUM("R-PTA", "CRUD-A", "CRUD-TA") })
     @NotNull
-    declare tipoPermissao: string
+    declare tipoPermissao: "R-PTA" | "CRUD-A" | "CRUD-TA";
 
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
