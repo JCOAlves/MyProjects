@@ -6,8 +6,10 @@ import dotenv from "dotenv";
 // Modelos Sequelize das tabelas do banco de dados
 import Usuario from "../Models/Usuario.ts";
 import Projeto from "../Models/Projeto.ts";
+import Usuario_projeto from "../Models/Usuario_projeto.ts";
 import Anotacao from "../Models/Anotacao.ts";
 import Tarefa from "../Models/Tarefa.ts";
+import Permissao from "../Models/Permissao.ts";
 
 dotenv.config();
 
@@ -18,7 +20,7 @@ const configBD = {
     password: process.env.SENHA_BD || "",
     host: process.env.HOST_BD || "localhost",
     port: Number(process.env.PORT_BD) || 3306,
-    models: [Usuario, Projeto, Anotacao, Tarefa]
+    models: [Usuario, Projeto, Usuario_projeto, Anotacao, Tarefa, Permissao]
 };
 
 const conexaoBD = new Sequelize(configBD);

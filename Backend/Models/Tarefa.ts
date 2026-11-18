@@ -18,7 +18,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
     @Attribute({
         type: DataTypes.STRING, validate: {
             validacaoNome(nomeUsuario: string) {
-                if (nomeUsuario.trim().length > 100) 
+                if (nomeUsuario.trim().length > 100)
                     throw new Error("Nome de usuário ultrapassou limite de 100 caracteres do banco de dados.");
             }
         }
@@ -30,10 +30,10 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
         type: DataTypes.DATE, validate: {
             validacaoData(dataInicio: string) {
                 const formatoCorreto = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dataInicio);
-                if (!formatoCorreto) 
+                if (!formatoCorreto)
                     throw new Error("Data e hora de inicio não estão no formato padrão (YYYY-MM-DD HH:mm:ss).");
-                
-                else if (!validator.isISO8601(dataInicio, { strict: true, strictSeparator: false })) 
+
+                else if (!validator.isISO8601(dataInicio, { strict: true, strictSeparator: false }))
                     throw new Error("A data de inicio fornecida não corresponde com uma data real no calendario.");
             }
         }
@@ -45,10 +45,10 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
         type: DataTypes.DATE, validate: {
             validacaoData(dataFim: string) {
                 const formatoCorreto = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dataFim);
-                if (!formatoCorreto) 
+                if (!formatoCorreto)
                     throw new Error("Data e hora de fim não estão no formato padrão (YYYY-MM-DD HH:mm:ss).");
-                
-                else if (!validator.isISO8601(dataFim, { strict: true, strictSeparator: false })) 
+
+                else if (!validator.isISO8601(dataFim, { strict: true, strictSeparator: false }))
                     throw new Error("A data de fim fornecida não corresponde com uma data real no calendario.");
             }
         }
@@ -65,6 +65,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
     @Default(DataTypes.NOW)
     declare dataCriacao: CreationOptional<Date>;
 
+    // Chave Estrangeira de ID Projeto
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
     declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>

@@ -2,6 +2,7 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from '@sequelize/core';
 import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default } from '@sequelize/core/decorators-legacy';
 
+// Tabela intermediaria de Usuários e Projetos
 @Table({
     tableName: "usuario_projeto", // Nome EXATO da tabela no seu MySQL
     freezeTableName: true, // Impede o Sequelize de pluralizar

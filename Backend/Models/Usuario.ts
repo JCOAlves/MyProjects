@@ -20,7 +20,7 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
     @Attribute({
         type: DataTypes.STRING(100), validate: {
             validacaoNome(nomeUsuario: string) {
-                if (nomeUsuario.trim().length > 100) 
+                if (nomeUsuario.trim().length > 100)
                     throw new Error("Nome de usuário ultrapassou limite de 100 caracteres do banco de dados.");
             }
         }
@@ -46,10 +46,10 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
     @Attribute({
         type: DataTypes.STRING(100), validate: {
             validacaoEmail(emailUsuario: string) {
-                if (!validator.isEmail(emailUsuario.trim())) 
+                if (!validator.isEmail(emailUsuario.trim()))
                     throw new Error("Endereço de Email fornecido pelo usuário é invalido.");
 
-                else if (emailUsuario.trim().length > 100) 
+                else if (emailUsuario.trim().length > 100)
                     throw new Error("Endereço de Email de usuário ultrapassou limite de 100 caracteres do banco de dados.");
             }
         }
@@ -61,7 +61,7 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
     @Attribute({
         type: DataTypes.STRING(255), validate: {
             validacaoSenha(senhaUsuario: string) {
-                if(senhaUsuario.trim().length < 8)
+                if (senhaUsuario.trim().length < 8)
                     throw new Error("Senha fornecida pelo usuário não possui o número minimo de 8 caracteres.");
             }
         }
@@ -69,6 +69,7 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
     @NotNull
     declare senhaUsuario: string;
 
+    // Relacionamento N:M de Usuários e Projetos
     @BelongsToMany(() => Projeto, {
         through: () => Usuario_projeto,
         foreignKey: "ID_usuario",

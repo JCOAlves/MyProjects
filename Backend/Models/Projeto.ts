@@ -1,6 +1,7 @@
 // Modelo Sequelize de Projeto
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional, type NonAttribute } from '@sequelize/core';
 import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default, BelongsToMany } from '@sequelize/core/decorators-legacy';
+import validator from "validator";
 import Usuario from './Usuario.ts';
 import Usuario_projeto from './Usuario_projeto.ts';
 
@@ -18,10 +19,10 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     @Attribute({
         type: DataTypes.STRING(120), validate: {
             validacaoNome(nomeProjeto: string) {
-                if (nomeProjeto.trim().length > 120) 
+                if (nomeProjeto.trim().length > 120)
                     throw new Error("Nome de projeto ultrapassou limite de 120 caracteres do banco de dados.");
-                
-                else if(nomeProjeto.trim().length === 0)
+
+                else if (nomeProjeto.trim().length === 0)
                     throw new Error("Nome de projeto composto apenas por espaços ou nome invalido.");
             }
         }
@@ -34,7 +35,18 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     @NotNull
     declare descricaoProjeto: string;
 
-    @Attribute({ type: DataTypes.DATE })
+    @Attribute({
+        type: DataTypes.DATE, validate: {
+            validacaoData(dataEntrega: string) {
+                const formatoCorreto = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dataEntrega);
+                if (!formatoCorreto)
+                    throw new Error("Data e hora de entrega não estão no formato padrão (YYYY-MM-DD HH:mm:ss).");
+
+                else if (!validator.isISO8601(dataEntrega, { strict: true, strictSeparator: false }))
+                    throw new Error("A data de entrega fornecida não corresponde com uma data real no calendario.");
+            }
+        }
+    })
     @NotNull
     declare dataEntrega: Date;
 
@@ -53,6 +65,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     @Default(DataTypes.NOW)
     declare dataCriacao: CreationOptional<Date>;
 
+    // Relacionamento N:M de Usuários e Projetos
     @BelongsToMany(() => Usuario, {
         through: () => Usuario_projeto,
         foreignKey: "ID_projeto",

@@ -4,7 +4,6 @@ import { Attribute, PrimaryKey, AutoIncrement, NotNull, Unique, Table, Default, 
 import Usuario from './Usuario.ts';
 import Projeto from './Projeto.ts';
 
-
 @Table({
     tableName: "permissao", // Nome EXATO da tabela no seu MySQL
     freezeTableName: true, // Impede o Sequelize de pluralizar
@@ -24,19 +23,21 @@ class Permissao extends Model<InferAttributes<Permissao>, InferCreationAttribute
     @NotNull
     declare valorPermissao: number;
 
+    // Chave Estrangeira de ID Usuário
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
-    declare ID_usuario: ForeignKey<Usuario["ID_usuario"]>
-
-    @Attribute({ type: DataTypes.INTEGER })
-    @NotNull
-    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>
+    declare ID_usuario: ForeignKey<Usuario["ID_usuario"]>;
 
     @BelongsTo(() => Usuario, "ID_usuario")
-    declare usuario?: NonAttribute<Usuario>
+    declare usuario?: NonAttribute<Usuario>;
+
+    // Chave Estrangeira de ID Projeto
+    @Attribute({ type: DataTypes.INTEGER })
+    @NotNull
+    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>;
 
     @BelongsTo(() => Projeto, "ID_projeto")
-    declare projeto?: NonAttribute<Projeto>
+    declare projeto?: NonAttribute<Projeto>;
 };
 
 export default Permissao;

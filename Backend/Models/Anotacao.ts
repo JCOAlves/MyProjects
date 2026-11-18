@@ -30,12 +30,13 @@ class Anotacao extends Model<InferAttributes<Anotacao>, InferCreationAttributes<
     @Default(DataTypes.NOW)
     declare dataCriacao: CreationOptional<Date>;
 
+    // Chave Estrangeira de ID Projeto
     @Attribute({ type: DataTypes.INTEGER })
     @NotNull
-    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>
+    declare ID_projeto: ForeignKey<Projeto["ID_projeto"]>;
 
     @BelongsTo(() => Projeto, "ID_projeto")
-    declare projeto?: NonAttribute<Projeto>
+    declare projeto?: NonAttribute<Projeto>;
 };
 
 export default Anotacao;
