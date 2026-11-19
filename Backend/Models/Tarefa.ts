@@ -16,10 +16,10 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
     declare ID_tarefa: CreationOptional<number>;
 
     @Attribute({
-        type: DataTypes.STRING, validate: {
-            validacaoNome(nomeUsuario: string) {
-                if (nomeUsuario.trim().length > 100)
-                    throw new Error("Nome de usuário ultrapassou limite de 100 caracteres do banco de dados.");
+        type: DataTypes.STRING(100), validate: {
+            validacaoNome(nomeTarefa: string) {
+                if (nomeTarefa.trim().length > 100)
+                    throw new Error("Nome de tarefa ultrapassou limite de 100 caracteres do banco de dados.");
             }
         }
     })

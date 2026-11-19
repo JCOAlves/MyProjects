@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const mensagensErros = {
     nome: [
-        "Nome de usuário não fornecido ou nome invalido.", 
+        "Nome de usuário não fornecido ou nome invalido.",
         "Nome de usuário ultrapassa o limite de 100 caracteres."
     ],
     nickname: [
@@ -14,7 +14,7 @@ const mensagensErros = {
     email: [
         "Endereço de email de usuário nã foi fornecida ou email invalido.",
         "Endereço de email de usuário ultrapassou o limite de 100 caracteres do banco de dado."
-    ], 
+    ],
     senha: [
         "Senha de usuário não foi fornecida ou senha invalida.",
         "Senha de usuário fornecida possui menos do que 8 caracteres exigidos."

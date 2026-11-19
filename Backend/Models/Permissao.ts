@@ -15,11 +15,20 @@ class Permissao extends Model<InferAttributes<Permissao>, InferCreationAttribute
     @AutoIncrement
     declare ID_permissao: CreationOptional<number>;
 
-    @Attribute({ type: DataTypes.ENUM("R-PTA", "CRUD-A", "CRUD-TA") })
+    @Attribute({ type: DataTypes.ENUM("R-PTA", "CRUD-A", "CRUD-TA", "CRUD-PTA") })
     @NotNull
-    declare tipoPermissao: "R-PTA" | "CRUD-A" | "CRUD-TA";
+    declare tipoPermissao: "R-PTA" | "CRUD-A" | "CRUD-TA" | "CRUD-PTA";
 
-    @Attribute({ type: DataTypes.INTEGER })
+    @Attribute({
+        type: DataTypes.INTEGER, validate: {
+            validacaoValor(valorPermissao: number) {
+                if (valorPermissao < 100111)
+                    throw new Error("Valor de permissão inferior a 100,111.");
+                else if (valorPermissao > 1111111)
+                    throw new Error("Valor de permissão superior a 1,111,111.");
+            }
+        }
+    })
     @NotNull
     declare valorPermissao: number;
 
