@@ -13,8 +13,8 @@ export class RequestHTTP {
     async GET(rota: string): Promise<RespostaHTTP | { erro: string }> {
         try {
             if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida invalida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida invalida." }
+                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
+                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
             };
 
             const resposta: Response = await fetch(this.#API_Rota + rota, { credentials: 'include' });
@@ -31,8 +31,8 @@ export class RequestHTTP {
     async POST(rota: string, dados: DadosRequisicao): Promise<RespostaHTTP | { erro: string }> {
         try {
             if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida invalida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida invalida." }
+                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
+                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
             };
 
             const objetoJSON: string = JSON.stringify(dados);
@@ -56,8 +56,8 @@ export class RequestHTTP {
     async PUT(rota: string, dados: DadosRequisicao): Promise<RespostaHTTP | { erro: string }> {
         try {
             if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida invalida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida invalida." }
+                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
+                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
             };
 
             const objetoJSON: string = JSON.stringify(dados);
@@ -80,8 +80,8 @@ export class RequestHTTP {
     async DELETE(rota: string): Promise<RespostaHTTP | { erro: string }> {
         try {
             if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida invalida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida invalida." }
+                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
+                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
             };
 
             const resposta: Response = await fetch(this.#API_Rota + rota, {

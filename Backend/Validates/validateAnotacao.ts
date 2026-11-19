@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const mensagensErros = {
     ID: [
-        "ID de projeto não fornecido ou ID invalido.",
+        "ID de projeto não fornecido ou ID inválido.",
         "ID de projeto é menor que 1."
     ]
 };

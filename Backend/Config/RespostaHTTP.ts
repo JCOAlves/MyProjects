@@ -4,7 +4,7 @@ type objectJSON = {
     status: number,
     mensagem: string,
     dados?: any,
-    erro?: Error | TypeError | null | any;
+    erro?: Error | TypeError | null | any | (Error | TypeError | null | any)[];
 };
 
 class ResponseHTTP {
@@ -12,9 +12,9 @@ class ResponseHTTP {
     #status: number;
     #mensagem: string;
     #dados: any;
-    #erro: Error | TypeError | null | any;
+    #erro: Error | TypeError | null | any | (Error | TypeError | null | any)[];
 
-    constructor(sucesso: boolean, status: number, mensagem: string, dados?: any, erro?: Error | TypeError | null | any) {
+    constructor(sucesso: boolean, status: number, mensagem: string, dados?: any, erro?: Error | TypeError | null | any | (Error | TypeError | null | any)[]) {
         this.#sucesso = sucesso;
         this.#status = status;
         this.#mensagem = mensagem;

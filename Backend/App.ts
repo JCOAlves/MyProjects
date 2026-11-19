@@ -8,13 +8,15 @@ import UsuarioRoutes from "./Routes/UsuarioRoutes.ts";
 import ProjetoRoutes from "./Routes/ProjetoRoutes.ts";
 import AnotacaoRoutes from "./Routes/AnotacaoRoutes.ts";
 import TarefaRoutes from "./Routes/TarefaRoutes.ts";
+import PermissaoRoutes from "./Routes/PermissaoRoutes.ts";
 
 dotenv.config();
 
 const app: Express = express();
+const HOST: string = process.env.HOST || "localhost";
 const PORT: number = Number(process.env.PORT) || 3000;
 
-verificacaoBD();
+verificacaoBD(); // Verificar erro em modelo Usuario_projeto
 app.use(CORS);
 
 app.get('/', (req: Request, res: Response) => {
@@ -25,6 +27,7 @@ app.use("/usuarios", UsuarioRoutes);
 app.use("/projetos", ProjetoRoutes);
 app.use("/anotacoes", AnotacaoRoutes);
 app.use("/tarefas", TarefaRoutes);
+app.use("/permissoes", PermissaoRoutes);
 
 app.all("/*notfound", (req: Request, res: Response) => {
   console.log("Rota não encontrada ou não existente.");
@@ -32,5 +35,5 @@ app.all("/*notfound", (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-    console.log("olá mundo");
+    console.log(`Servidor rodando em http://${HOST}:${PORT}`);
 });

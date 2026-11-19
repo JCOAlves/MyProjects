@@ -3,20 +3,20 @@ import { z } from "zod";
 
 const mensagensErros = {
     nome: [
-        "Nome de usuário não fornecido ou nome invalido.",
+        "Nome de usuário não fornecido ou nome inválido.",
         "Nome de usuário ultrapassa o limite de 100 caracteres."
     ],
     nickname: [
-        "Nickname de usuário não foi fornecido ou nickname invalido.",
+        "Nickname de usuário não foi fornecido ou nickname inválido.",
         "Nickname de usuário tem menos do que 8 caracteres minimamente exigidos.",
         "Nickname de usuário tem mais do que 12 caracteres de limite."
     ],
     email: [
-        "Endereço de email de usuário nã foi fornecida ou email invalido.",
+        "Endereço de email de usuário nã foi fornecida ou email inválido.",
         "Endereço de email de usuário ultrapassou o limite de 100 caracteres do banco de dado."
     ],
     senha: [
-        "Senha de usuário não foi fornecida ou senha invalida.",
+        "Senha de usuário não foi fornecida ou senha inválida.",
         "Senha de usuário fornecida possui menos do que 8 caracteres exigidos."
     ]
 };

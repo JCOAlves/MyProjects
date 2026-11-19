@@ -26,6 +26,10 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
     @NotNull
     declare nomeTarefa: string;
 
+    @Attribute({ type: DataTypes.TEXT })
+    @NotNull
+    declare descricaoTarefa: string;
+
     @Attribute({
         type: DataTypes.DATE, validate: {
             validacaoData(dataInicio: string) {

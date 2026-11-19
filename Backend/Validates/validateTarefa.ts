@@ -11,7 +11,7 @@ const mensagensErros = {
         "Data e hora de fim da tarefa do calendário inválida."
     ],
     ID: [
-        "ID de projeto não fornecido ou ID invalido.",
+        "ID de projeto não fornecido ou ID inválido.",
         "ID de projeto é menor que 1."
     ]
 };
@@ -21,6 +21,7 @@ const dataSemTRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 
 const parametrosValidade = {
     nomeTarefa: z.string().max(100),
+    descricaoTarefa: z.string().optional(),
     dataInicio: z
         .string()
         .regex(dataSemTRegex, { message: dataInicio[0] })

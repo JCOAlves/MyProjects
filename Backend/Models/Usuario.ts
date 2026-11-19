@@ -47,7 +47,7 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
         type: DataTypes.STRING(100), validate: {
             validacaoEmail(emailUsuario: string) {
                 if (!validator.isEmail(emailUsuario.trim()))
-                    throw new Error("Endereço de Email fornecido pelo usuário é invalido.");
+                    throw new Error("Endereço de Email fornecido pelo usuário é inválido.");
 
                 else if (emailUsuario.trim().length > 100)
                     throw new Error("Endereço de Email de usuário ultrapassou limite de 100 caracteres do banco de dados.");

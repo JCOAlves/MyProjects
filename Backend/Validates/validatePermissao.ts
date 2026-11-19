@@ -3,18 +3,18 @@ import { z } from "zod";
 
 const mensagensErros = {
     permissao: [
-        "Tipo de permissão fornecida não existe foi é invalida."
+        "Tipo de permissão fornecida não existe foi é inválida."
     ],
     valor: [
         "Valor de permissão é menor do que 100,111.",
         "Valor de permissão é maior do que 1,111,111."
     ],
     projeto: [
-        "ID de projeto não fornecido ou ID invalido.",
+        "ID de projeto não fornecido ou ID inválido.",
         "ID de projeto é menor que 1."
     ],
     usuario: [
-        "ID de usuario não fornecido ou ID invalido.",
+        "ID de usuario não fornecido ou ID inválido.",
         "ID de usuario é menor que 1."
     ],
 };

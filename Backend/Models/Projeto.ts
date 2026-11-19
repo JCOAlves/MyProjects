@@ -23,7 +23,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
                     throw new Error("Nome de projeto ultrapassou limite de 120 caracteres do banco de dados.");
 
                 else if (nomeProjeto.trim().length === 0)
-                    throw new Error("Nome de projeto composto apenas por espaços ou nome invalido.");
+                    throw new Error("Nome de projeto composto apenas por espaços ou nome inválido.");
             }
         }
     })
