@@ -2,11 +2,11 @@
 import { type Request, type Response } from "express";
 import { Op } from '@sequelize/core';
 import Tarefa from "../Models/Tarefa.ts";
+import Projeto from "../Models/Projeto.ts";
 import dadosTarefa from "../Validates/validateTarefa.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
-// Implementar o INNER JOIN na listagem
-
+// GET de tarefas
 const listaTarefas = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { nome, texto, projeto } = req.query;
@@ -24,10 +24,10 @@ const listaTarefas = async (req: Request, res: Response): Promise<Response | voi
 
         let tarefasLista: Tarefa[] = [];
         nome || texto || projeto ?
-            tarefasLista = await Tarefa.findAll({ where: parametrosTarefa }) :
-            tarefasLista = await Tarefa.findAll();
+            tarefasLista = await Tarefa.findAll({ where: parametrosTarefa, include: { model: Projeto, attributes: ["ID_projeto", "nomeProjeto"] } }) :
+            tarefasLista = await Tarefa.findAll({ include: { model: Projeto, attributes: ["ID_projeto", "nomeProjeto"] } });
 
-        if (tarefasLista.length === 0){
+        if (tarefasLista.length === 0) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Tarefas de projetos não encontrados ou não existentes no sistema.", tarefasLista);
             RespostaHTTP.mostrarMensagem();
             return res.status(404).json(RespostaHTTP.returnJSON);
@@ -36,27 +36,28 @@ const listaTarefas = async (req: Request, res: Response): Promise<Response | voi
         const RespostaHTTP = new ResponseHTTP(true, 200, "Tarefas de projeto do sistema listados com sucesso.", tarefasLista);
         RespostaHTTP.mostrarMensagem();
         return res.status(200).json(RespostaHTTP.returnJSON);
-        
+
     } catch (error) {
-        const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
+        const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de tarefas de projetos do sistema.", null, error);
         RespostaHTTP.mostrarMensagem();
         return res.status(500).json(RespostaHTTP.returnJSON);
     };
 };
 
+// GET de tarefa por ID
 const listaTarefaID = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
 
-        if(Number.isNaN(ID) || !ID){
+        if (Number.isNaN(ID) || !ID) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "ID de tarefa do projeto não foi fornecido ou é inválido.");
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON);
         };
 
-        const tarefaID: Tarefa | null = await Tarefa.findByPk(Number(ID));
+        const tarefaID: Tarefa | null = await Tarefa.findByPk(Number(ID), { include: { model: Projeto, attributes: ["ID_projeto", "nomeProjeto"] } });
 
-        if(!tarefaID){
+        if (!tarefaID) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Tarefa de projeto relacionado ao ID não foi encontrado ou não existe no sistema.");
             RespostaHTTP.mostrarMensagem();
             return res.status(404).json(RespostaHTTP.returnJSON);
@@ -65,25 +66,26 @@ const listaTarefaID = async (req: Request, res: Response): Promise<Response | vo
         const RespostaHTTP = new ResponseHTTP(true, 200, "Tarefa de projeto listado por ID com sucesso.", tarefaID);
         RespostaHTTP.mostrarMensagem();
         return res.status(200).json(RespostaHTTP.returnJSON);
-        
+
     } catch (error) {
-        const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
+        const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de tarefa de projeto do sistema por ID.", null, error);
         RespostaHTTP.mostrarMensagem();
         return res.status(500).json(RespostaHTTP.returnJSON);
     };
 };
 
+// POST de tarefa
 const cadastraTarefa = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosTarefa.safeParse(req.body);
-        
-        if(!dadosRequisicao.success){
+
+        if (!dadosRequisicao.success) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de tarefa.", null, dadosRequisicao.error);
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON);
         };
-        
-        
+
+
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
@@ -91,10 +93,11 @@ const cadastraTarefa = async (req: Request, res: Response): Promise<Response | v
     };
 };
 
+// PUT de tarefa
 const editaTarefa = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
-        
+
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
@@ -102,10 +105,11 @@ const editaTarefa = async (req: Request, res: Response): Promise<Response | void
     };
 };
 
+// DELETE de tarefa
 const deletaTarefa = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
-        
+
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
@@ -113,5 +117,5 @@ const deletaTarefa = async (req: Request, res: Response): Promise<Response | voi
     };
 };
 
-export { listaTarefas, listaTarefaID, cadastraTarefa, editaTarefa, deletaTarefa }; 
+export { listaTarefas, listaTarefaID, cadastraTarefa, editaTarefa, deletaTarefa };
 

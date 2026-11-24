@@ -2,11 +2,11 @@
 import { type Request, type Response } from "express";
 import { Op } from '@sequelize/core';
 import Projeto from "../Models/Projeto.ts";
+import Usuario from "../Models/Usuario.ts";
 import dadosProjeto from "../Validates/validateProjeto.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
-// Implementar o INNER JOIN na listagem
-
+// GET de projetos
 const listaProjetos = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { nome, descricao, dataEntrega, status, ID_usuario } = req.query;
@@ -22,18 +22,18 @@ const listaProjetos = async (req: Request, res: Response): Promise<Response | vo
         const parametrosProjeto: Filtros = {};
         if (nome) parametrosProjeto.nome = { [Op.like]: `${nome}%` };
         if (descricao) parametrosProjeto.descricao = { [Op.like]: `%${descricao}%` };
-        if (dataEntrega) parametrosProjeto.dataEntrega = { 
-            [Op.between]: [new Date(`${dataEntrega} 00:00:00`), new Date(`${dataEntrega} 23:59:59`)] 
+        if (dataEntrega) parametrosProjeto.dataEntrega = {
+            [Op.between]: [new Date(`${dataEntrega} 00:00:00`), new Date(`${dataEntrega} 23:59:59`)]
         };
         if (status) parametrosProjeto.status = status as string;
         if (!Number.isNaN(Number(ID_usuario)) && ID_usuario) parametrosProjeto.ID_usuario = Number(ID_usuario);
 
         let projetosLista: Projeto[] = [];
         nome || descricao || dataEntrega || status ?
-            projetosLista = await Projeto.findAll({ where: parametrosProjeto }) :
-            projetosLista = await Projeto.findAll();
+            projetosLista = await Projeto.findAll({ where: parametrosProjeto, include: { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } } }) :
+            projetosLista = await Projeto.findAll({ include: { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } } });
 
-        if (projetosLista.length === 0){
+        if (projetosLista.length === 0) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Projetos não encontrados ou não existentes no sistema.", projetosLista);
             RespostaHTTP.mostrarMensagem();
             return res.status(404).json(RespostaHTTP.returnJSON);
@@ -44,25 +44,26 @@ const listaProjetos = async (req: Request, res: Response): Promise<Response | vo
         return res.status(200).json(RespostaHTTP.returnJSON);
 
     } catch (error) {
-        const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
+        const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de projetos do sistema.", null, error);
         RespostaHTTP.mostrarMensagem();
         return res.status(500).json(RespostaHTTP.returnJSON);
     };
 };
 
+// GET de projeto por ID
 const listaProjetoID = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
 
-        if(Number.isNaN(Number(ID)) || !ID){
+        if (Number.isNaN(Number(ID)) || !ID) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "ID de projeto não foi fornecido ou é inválido.");
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON);
         };
 
-        const projetoID: Projeto | null = await Projeto.findByPk(Number(ID));
+        const projetoID: Projeto | null = await Projeto.findByPk(Number(ID), { include: { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } } });
 
-        if(!projetoID){
+        if (!projetoID) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Projeto relacionado ao ID não foi encontrado ou não existe no sistema.");
             RespostaHTTP.mostrarMensagem();
             return res.status(404).json(RespostaHTTP.returnJSON);
@@ -73,12 +74,13 @@ const listaProjetoID = async (req: Request, res: Response): Promise<Response | v
         return res.status(200).json(RespostaHTTP.returnJSON);
 
     } catch (error) {
-        const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
+        const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de projeto do sistema por ID.", null, error);
         RespostaHTTP.mostrarMensagem();
         return res.status(500).json(RespostaHTTP.returnJSON);
     };
 };
 
+// POST de projeto
 const cadastraProjeto = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosProjeto.safeParse(req.body);
@@ -96,6 +98,7 @@ const cadastraProjeto = async (req: Request, res: Response): Promise<Response | 
     };
 };
 
+// PUT de projeto
 const editaProjeto = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
@@ -107,6 +110,7 @@ const editaProjeto = async (req: Request, res: Response): Promise<Response | voi
     };
 };
 
+// DELETE de projeto
 const deletaProjeto = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;

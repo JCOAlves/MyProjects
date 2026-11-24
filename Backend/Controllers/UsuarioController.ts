@@ -2,11 +2,11 @@
 import { type Request, type Response } from "express";
 import { Op } from '@sequelize/core';
 import Usuario from "../Models/Usuario.ts";
+import Projeto from "../Models/Projeto.ts";
 import dadosUsuario from "../Validates/validateUsuario.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
-// Implementar o INNER JOIN na listagem
-
+// GET usuários
 const listaUsuarios = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { nome, nickname, email } = req.query;
@@ -24,10 +24,10 @@ const listaUsuarios = async (req: Request, res: Response): Promise<Response | vo
 
         let usuariosLista: Usuario[] = [];
         nome || nickname || email ?
-            usuariosLista = await Usuario.findAll({ where: parametrosUsuario }) :
-            usuariosLista = await Usuario.findAll();
+            usuariosLista = await Usuario.findAll({ where: parametrosUsuario, attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario", "emailUsuario"], include: Projeto }) :
+            usuariosLista = await Usuario.findAll({ attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario", "emailUsuario"], include: Projeto });
 
-        if (usuariosLista.length === 0){
+        if (usuariosLista.length === 0) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Usuários não encontrados ou não existentes no sistema.", usuariosLista);
             RespostaHTTP.mostrarMensagem();
             return res.status(404).json(RespostaHTTP.returnJSON);
@@ -44,19 +44,20 @@ const listaUsuarios = async (req: Request, res: Response): Promise<Response | vo
     };
 };
 
+// GET usuário por ID
 const listaUsuarioID = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
 
-        if(Number.isNaN(Number(ID)) || !ID){
+        if (Number.isNaN(Number(ID)) || !ID) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "ID de usuário não foi fornecido ou é inválido.");
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON);
         };
 
-        const usuarioID: Usuario | null = await Usuario.findByPk(Number(ID));
+        const usuarioID: Usuario | null = await Usuario.findByPk(Number(ID), { attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario", "emailUsuario"], include: Projeto });
 
-        if(!usuarioID){
+        if (!usuarioID) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Usuário relacionado ao ID não foi encontrado ou não existe no sistema.");
             RespostaHTTP.mostrarMensagem();
             return res.status(404).json(RespostaHTTP.returnJSON);
@@ -73,6 +74,7 @@ const listaUsuarioID = async (req: Request, res: Response): Promise<Response | v
     };
 };
 
+// POST de usuário
 const cadastraUsuario = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosUsuario.safeParse(req.body);
@@ -92,6 +94,7 @@ const cadastraUsuario = async (req: Request, res: Response): Promise<Response | 
     };
 };
 
+// PUT de usuário
 const editaUsuario = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
@@ -103,6 +106,7 @@ const editaUsuario = async (req: Request, res: Response): Promise<Response | voi
     };
 };
 
+// DELETE de usuário
 const deletaUsuario = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
