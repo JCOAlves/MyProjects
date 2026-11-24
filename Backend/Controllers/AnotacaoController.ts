@@ -1,12 +1,39 @@
 // Funções da rotas de Anotação
-import { type Express, type Request, type Response } from "express";
+import { type Request, type Response } from "express";
+import { Op } from '@sequelize/core';
 import Anotacao from "../Models/Anotacao.ts";
 import dadosAnotacao from "../Validates/validateAnotacao.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
+// Implementar o INNER JOIN na listagem
+
 const listaAnotacoes = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { texto, projeto } = req.query;
+
+        type Filtros = {
+            texto?: { [Op.like]: string },
+            projeto?: number
+        };
+
+        const parametrosAnotacao: Filtros = {};
+        if (texto) parametrosAnotacao.texto = { [Op.like]: `%${texto}%` };
+        if (!Number.isNaN(Number(projeto)) && projeto) parametrosAnotacao.projeto = Number(projeto);
+
+        let anotacoesLista: Anotacao[] = [];
+        texto || projeto ?
+            anotacoesLista = await Anotacao.findAll({ where: parametrosAnotacao }) :
+            anotacoesLista = await Anotacao.findAll();
+
+        if (anotacoesLista.length === 0){
+            const RespostaHTTP = new ResponseHTTP(false, 404, "Anotações de projetos não encontrados ou não existentes no sistema.", anotacoesLista);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(404).json(RespostaHTTP.returnJSON);
+        };
+
+        const RespostaHTTP = new ResponseHTTP(true, 200, "Anotações de projetos do sistema listados com sucesso.", anotacoesLista);
+        RespostaHTTP.mostrarMensagem();
+        return res.status(200).json(RespostaHTTP.returnJSON);
         
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
@@ -18,6 +45,24 @@ const listaAnotacoes = async (req: Request, res: Response): Promise<Response | v
 const listaAnotacaoID = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { ID } = req.params;
+
+        if(Number.isNaN(Number(ID)) || !ID){
+            const RespostaHTTP = new ResponseHTTP(false, 400, "ID de anotação de projeto não foi fornecido ou é inválido.");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(400).json(RespostaHTTP.returnJSON);
+        };
+
+        const anotacaoID: Anotacao | null = await Anotacao.findByPk(Number(ID));
+
+        if(!anotacaoID){
+            const RespostaHTTP = new ResponseHTTP(false, 404, "Anotação de projeto relacionado ao ID não foi encontrado ou não existe no sistema.");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(404).json(RespostaHTTP.returnJSON);
+        };
+
+        const RespostaHTTP = new ResponseHTTP(true, 200, "Anotação de projeto listado por ID com sucesso.", anotacaoID);
+        RespostaHTTP.mostrarMensagem();
+        return res.status(200).json(RespostaHTTP.returnJSON);
         
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
