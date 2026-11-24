@@ -44,3 +44,7 @@ __screenshots__/
 Thumbs.db
 
 .env
+
+/.env
+/test-results
+/playwright-report

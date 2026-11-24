@@ -1,0 +1,707 @@
+@if (project(); as currentProject) {
+  <div class="project-page">
+    <nav class="project-breadcrumb" aria-label="Caminho da página">
+      <a routerLink="/projetos"><app-icon name="chevron-left" [size]="15" /> Meus projetos</a>
+      <app-icon name="chevron-right" [size]="13" />
+      <span aria-current="page">{{ currentProject.title }}</span>
+    </nav>
+
+    <header class="project-heading">
+      <div class="project-identity">
+        <div class="project-folder" aria-hidden="true">
+          <svg width="47" height="43" viewBox="0 0 48 44" fill="none" focusable="false">
+            <path
+              d="M4 7a4 4 0 0 1 4-4h11l5 6h16a4 4 0 0 1 4 4v23a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V7Z"
+              fill="#1762d7"
+            />
+            <path
+              d="M4 15a4 4 0 0 1 4-4h32a4 4 0 0 1 4 4v22a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V15Z"
+              fill="#3694ff"
+            />
+            <path d="M8 14h32v23H8z" fill="#2d88f4" />
+          </svg>
+        </div>
+        <div class="project-title-block">
+          <h1>{{ currentProject.title }}</h1>
+          <p>
+            {{
+              currentProject.description ||
+                'Adicione uma descrição para organizar as ideias do seu projeto.'
+            }}
+          </p>
+        </div>
+      </div>
+      <div class="project-heading-actions">
+        <button class="btn btn-primary btn-sm" type="button" (click)="openProject()">
+          <app-icon name="edit" [size]="16" /> Editar projeto
+        </button>
+        <button class="btn btn-secondary btn-sm" type="button" (click)="setTab('sharing')">
+          <app-icon name="users" [size]="16" /> Compartilhar
+        </button>
+        <button
+          class="btn btn-secondary project-settings-button"
+          type="button"
+          (click)="setTab('settings')"
+          aria-label="Configurações do projeto"
+          title="Configurações do projeto"
+        >
+          <app-icon name="more-horizontal" [size]="19" />
+        </button>
+      </div>
+    </header>
+
+    <div class="project-tabs" role="tablist" aria-label="Seções do projeto">
+      @for (tab of tabs; track tab.id; let index = $index) {
+        <button
+          type="button"
+          role="tab"
+          [id]="'project-tab-' + tab.id"
+          [attr.aria-controls]="'project-panel-' + tab.id"
+          [attr.aria-selected]="activeTab() === tab.id"
+          [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+          [class.active]="activeTab() === tab.id"
+          (click)="setTab(tab.id)"
+          (keydown)="tabKeydown($event, index)"
+        >
+          <app-icon [name]="tab.icon" [size]="18" /> {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    @for (tab of tabs; track tab.id) {
+      @if (activeTab() !== tab.id) {
+        <div
+          role="tabpanel"
+          [id]="'project-panel-' + tab.id"
+          [attr.aria-labelledby]="'project-tab-' + tab.id"
+          hidden
+        ></div>
+      }
+    }
+
+    @if (activeTab() === 'tasks') {
+      <div
+        class="project-content project-columns"
+        role="tabpanel"
+        id="project-panel-tasks"
+        aria-labelledby="project-tab-tasks"
+        tabindex="0"
+      >
+        <section class="tasks-section" aria-labelledby="tasks-title">
+          <div class="section-heading">
+            <h2 id="tasks-title">
+              Tarefas <span class="count-badge">{{ currentProject.tasks.length }}</span>
+            </h2>
+            <button class="btn btn-primary btn-sm" type="button" (click)="openTask()">
+              <app-icon name="plus" [size]="15" /> Nova tarefa
+            </button>
+          </div>
+          @if (currentProject.tasks.length) {
+            <div class="task-summary">
+              <span>{{ completedCount() }} de {{ currentProject.tasks.length }} concluídas</span
+              ><span>{{ progress() }}%</span>
+            </div>
+            <div
+              class="task-progress"
+              role="progressbar"
+              [attr.aria-valuenow]="progress()"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-label="Progresso das tarefas"
+            >
+              <span [style.width.%]="progress()"></span>
+            </div>
+            <div class="task-filter-row">
+              <label for="task-filter">Mostrar</label
+              ><select
+                id="task-filter"
+                [ngModel]="taskFilter()"
+                (ngModelChange)="taskFilter.set($event)"
+              >
+                <option value="all">Todas as tarefas</option>
+                <option value="pending">Pendentes</option>
+                <option value="done">Concluídas</option>
+              </select>
+            </div>
+            <ul class="task-list" aria-label="Tarefas do projeto">
+              @for (task of visibleTasks(); track task.id) {
+                <li class="task-row" [class.is-done]="task.done">
+                  <input
+                    class="task-checkbox"
+                    type="checkbox"
+                    [checked]="task.done"
+                    (change)="toggleTask(task, $event)"
+                    [disabled]="saving"
+                    [attr.aria-label]="
+                      (task.done ? 'Reabrir tarefa: ' : 'Concluir tarefa: ') + task.title
+                    "
+                  />
+                  <button
+                    class="task-title"
+                    type="button"
+                    (click)="openTask(task)"
+                    [title]="'Editar ' + task.title"
+                  >
+                    {{ task.title }}
+                  </button>
+                  <span class="priority" [class]="'priority priority-' + task.priority">{{
+                    priorityLabel(task.priority)
+                  }}</span>
+                  <time
+                    class="task-date"
+                    [attr.datetime]="task.deadline || null"
+                    [title]="task.deadline ? 'Prazo: ' + task.deadline : 'Sem prazo definido'"
+                    >{{ dateLabel(task.deadline) }}</time
+                  >
+                  <button
+                    class="row-icon-button danger-icon"
+                    type="button"
+                    (click)="requestDeleteTask(task)"
+                    [attr.aria-label]="'Excluir tarefa: ' + task.title"
+                    title="Excluir tarefa"
+                  >
+                    <app-icon name="trash" [size]="15" />
+                  </button>
+                </li>
+              } @empty {
+                <li class="small-empty">
+                  <app-icon name="check-circle" [size]="24" />
+                  <p>
+                    {{
+                      taskFilter() === 'pending'
+                        ? 'Tudo em dia! Nenhuma tarefa pendente.'
+                        : 'Nenhuma tarefa concluída ainda.'
+                    }}
+                  </p>
+                  <button class="text-button" type="button" (click)="taskFilter.set('all')">
+                    Mostrar todas as tarefas
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="section-empty">
+              <span class="empty-icon"><app-icon name="check-circle" [size]="28" /></span>
+              <h3>Uma tarefa de cada vez</h3>
+              <p>Divida seu projeto em pequenas etapas para acompanhar o progresso.</p>
+              <button class="btn btn-secondary btn-sm" type="button" (click)="openTask()">
+                Criar primeira tarefa
+              </button>
+            </div>
+          }
+        </section>
+        <section class="notes-section" aria-labelledby="notes-preview-title">
+          <div class="section-heading">
+            <h2 id="notes-preview-title">Anotações</h2>
+            <button class="btn btn-primary btn-sm" type="button" (click)="openNote()">
+              <app-icon name="plus" [size]="15" /> Nova nota
+            </button>
+          </div>
+          @for (note of currentProject.notes.slice(0, 2); track note.id) {
+            <article class="note-card">
+              <div class="note-heading">
+                <h3>{{ note.title }}</h3>
+                <div class="note-actions">
+                  <button
+                    class="row-icon-button"
+                    type="button"
+                    (click)="openNote(note)"
+                    [attr.aria-label]="'Editar anotação: ' + note.title"
+                    title="Editar anotação"
+                  >
+                    <app-icon name="edit" [size]="15" /></button
+                  ><button
+                    class="row-icon-button danger-icon"
+                    type="button"
+                    (click)="requestDeleteNote(note)"
+                    [attr.aria-label]="'Excluir anotação: ' + note.title"
+                    title="Excluir anotação"
+                  >
+                    <app-icon name="trash" [size]="15" />
+                  </button>
+                </div>
+              </div>
+              <p class="note-content">{{ note.content }}</p>
+            </article>
+          } @empty {
+            <div class="section-empty compact">
+              <span class="empty-icon"><app-icon name="note" [size]="27" /></span>
+              <h3>Espaço para suas ideias</h3>
+              <p>Guarde referências, lembretes e próximos passos.</p>
+              <button class="text-button" type="button" (click)="openNote()">
+                Criar primeira anotação
+              </button>
+            </div>
+          }
+          @if (currentProject.notes.length > 2) {
+            <button class="text-button see-notes" type="button" (click)="setTab('notes')">
+              Ver todas as {{ currentProject.notes.length }} anotações
+              <app-icon name="arrow-right" [size]="15" />
+            </button>
+          }
+        </section>
+      </div>
+    }
+
+    @if (activeTab() === 'notes') {
+      <section
+        class="project-content"
+        role="tabpanel"
+        id="project-panel-notes"
+        aria-labelledby="project-tab-notes"
+        tabindex="0"
+      >
+        <div class="section-heading">
+          <div>
+            <h2>
+              Anotações <span class="count-badge">{{ currentProject.notes.length }}</span>
+            </h2>
+            <p class="section-description">Suas ideias e referências, sempre por perto.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button" (click)="openNote()">
+            <app-icon name="plus" [size]="16" /> Nova nota
+          </button>
+        </div>
+        <div class="notes-grid">
+          @for (note of currentProject.notes; track note.id) {
+            <article class="note-card">
+              <div class="note-heading">
+                <h3>{{ note.title }}</h3>
+                <div class="note-actions">
+                  <button
+                    class="row-icon-button"
+                    type="button"
+                    (click)="openNote(note)"
+                    [attr.aria-label]="'Editar anotação: ' + note.title"
+                    title="Editar anotação"
+                  >
+                    <app-icon name="edit" [size]="16" /></button
+                  ><button
+                    class="row-icon-button danger-icon"
+                    type="button"
+                    (click)="requestDeleteNote(note)"
+                    [attr.aria-label]="'Excluir anotação: ' + note.title"
+                    title="Excluir anotação"
+                  >
+                    <app-icon name="trash" [size]="16" />
+                  </button>
+                </div>
+              </div>
+              <p class="note-content">{{ note.content }}</p>
+            </article>
+          } @empty {
+            <div class="section-empty full-width">
+              <span class="empty-icon"><app-icon name="note" [size]="32" /></span>
+              <h3>As boas ideias começam aqui</h3>
+              <p>Crie sua primeira anotação e reúna as informações deste projeto.</p>
+              <button class="btn btn-secondary" type="button" (click)="openNote()">
+                Criar anotação
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'sharing') {
+      <section
+        class="project-content"
+        role="tabpanel"
+        id="project-panel-sharing"
+        aria-labelledby="project-tab-sharing"
+        tabindex="0"
+      >
+        <div class="section-heading">
+          <div>
+            <h2>Compartilhamento</h2>
+            <p class="section-description">Organize quem participa do projeto.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button" (click)="openMember()">
+            <app-icon name="users" [size]="17" /> Adicionar colaborador
+          </button>
+        </div>
+        <p class="sharing-notice">
+          <app-icon name="info" [size]="19" /><span
+            ><strong>Simulação local.</strong> Os colaboradores e as permissões ficam apenas neste
+            navegador. Nenhum convite é enviado e o projeto não é compartilhado de verdade.</span
+          >
+        </p>
+        <div class="members-list" aria-label="Participantes do projeto">
+          @if (workspace.user(); as user) {
+            <div class="member-row">
+              <span class="member-avatar">{{ initials(user.name) }}</span>
+              <div class="member-identity">
+                <strong>{{ user.name }} <span class="you-label">(você)</span></strong
+                ><span>{{ user.email }}</span>
+              </div>
+              <span class="role-badge owner">Proprietário</span>
+            </div>
+          }
+          @for (member of currentProject.members; track member.id) {
+            <div class="member-row">
+              <span class="member-avatar secondary">{{ initials(member.name) }}</span>
+              <div class="member-identity">
+                <strong>{{ member.name }}</strong
+                ><span>{{ member.email }}</span>
+              </div>
+              <span class="role-badge">{{ member.role === 'editor' ? 'Editor' : 'Leitor' }}</span>
+              <div class="member-actions">
+                <button
+                  class="row-icon-button"
+                  type="button"
+                  (click)="openMember(member)"
+                  [attr.aria-label]="'Alterar permissão de ' + member.name"
+                  title="Alterar permissão"
+                >
+                  <app-icon name="edit" [size]="17" /></button
+                ><button
+                  class="row-icon-button danger-icon"
+                  type="button"
+                  (click)="requestDeleteMember(member)"
+                  [attr.aria-label]="'Remover colaborador: ' + member.name"
+                  title="Remover colaborador"
+                >
+                  <app-icon name="trash" [size]="17" />
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="permission-explainer">
+          <div>
+            <app-icon name="eye" [size]="20" /><span
+              ><strong>Leitor</strong
+              ><small>Pode visualizar o projeto, as tarefas e as anotações.</small></span
+            >
+          </div>
+          <div>
+            <app-icon name="edit" [size]="20" /><span
+              ><strong>Editor</strong
+              ><small>Pode colaborar na edição de tarefas e anotações.</small></span
+            >
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'settings') {
+      <section
+        class="project-content settings-content"
+        role="tabpanel"
+        id="project-panel-settings"
+        aria-labelledby="project-tab-settings"
+        tabindex="0"
+      >
+        <div class="section-heading">
+          <div>
+            <h2>Configurações do projeto</h2>
+            <p class="section-description">Deixe tudo organizado do seu jeito.</p>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div>
+            <h3>Informações do projeto</h3>
+            <p>Edite o nome, a descrição, o ícone e a cor de identificação.</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" type="button" (click)="openProject()">
+            <app-icon name="edit" [size]="16" /> Editar projeto
+          </button>
+        </div>
+        <div class="settings-card">
+          <div>
+            <h3>Seu progresso</h3>
+            <p>
+              {{ completedCount() }} de {{ currentProject.tasks.length }} tarefas concluídas neste
+              projeto.
+            </p>
+          </div>
+          <span class="progress-number">{{ progress() }}%</span>
+        </div>
+        <div class="settings-card danger-zone">
+          <div>
+            <h3>Excluir projeto</h3>
+            <p>
+              Remove o projeto, suas tarefas e suas anotações. A exclusão não pode ser desfeita.
+            </p>
+          </div>
+          <button
+            class="btn btn-secondary btn-sm delete-project-button"
+            type="button"
+            (click)="requestDeleteProject()"
+          >
+            <app-icon name="trash" [size]="16" /> Excluir projeto
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+} @else {
+  <section class="project-missing">
+    <span class="empty-icon"><app-icon name="folder" [size]="40" /></span>
+    <h1>Projeto não encontrado</h1>
+    <p>Este projeto pode ter sido excluído ou o endereço está incorreto.</p>
+    <a class="btn btn-primary" routerLink="/projetos">Voltar para meus projetos</a>
+  </section>
+}
+
+@if (editor && !confirmation) {
+  <app-modal [title]="editorTitle" [description]="editorDescription" (closed)="closeEditor()">
+    @if (discardPrompt) {
+      <div class="discard-changes" role="alert">
+        <strong>Descartar as alterações?</strong>
+        <p>Há alterações que ainda não foram salvas.</p>
+        <div class="discard-actions">
+          <button
+            class="btn btn-secondary btn-sm"
+            id="continue-project-edit"
+            type="button"
+            (click)="continueEditing()"
+          >
+            Continuar editando</button
+          ><button class="btn btn-danger btn-sm" type="button" (click)="discardChanges()">
+            Descartar alterações
+          </button>
+        </div>
+      </div>
+    }
+    <form novalidate (ngSubmit)="saveEditor()" class="project-editor" [attr.aria-busy]="saving">
+      @if (formError) {
+        <p class="form-alert" role="alert">{{ formError }}</p>
+      }
+      @if (editor === 'project') {
+        <div class="form-field">
+          <label for="project-title">Nome do projeto</label
+          ><input
+            id="project-title"
+            name="projectTitle"
+            [(ngModel)]="projectDraft.title"
+            maxlength="120"
+            autocomplete="off"
+            required
+            [attr.aria-invalid]="!!errors['project-title']"
+            [attr.aria-describedby]="errors['project-title'] ? 'project-title-error' : null"
+          />
+          @if (errors['project-title']) {
+            <p class="field-error" id="project-title-error">{{ errors['project-title'] }}</p>
+          }
+        </div>
+        <div class="form-field">
+          <label for="project-description"
+            >Descrição <span class="optional-label">(opcional)</span></label
+          ><textarea
+            id="project-description"
+            name="projectDescription"
+            [(ngModel)]="projectDraft.description"
+            rows="3"
+            maxlength="2000"
+            style="resize: none"
+            placeholder="Qual é o objetivo deste projeto?"
+          ></textarea>
+        </div>
+        <div class="form-two-columns">
+          <div class="form-field">
+            <label for="project-icon">Ícone</label
+            ><select id="project-icon" name="projectIcon" [(ngModel)]="projectDraft.icon">
+              @for (icon of icons; track icon.value) {
+                <option [value]="icon.value">{{ icon.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="project-color">Cor</label
+            ><select id="project-color" name="projectColor" [(ngModel)]="projectDraft.color">
+              <option value="blue">Azul</option>
+              <option value="amber">Amarelo</option>
+              <option value="violet">Violeta</option>
+              <option value="teal">Verde</option>
+            </select>
+          </div>
+        </div>
+      }
+      @if (editor === 'task') {
+        <div class="form-field">
+          <label for="task-title">Nome da tarefa</label
+          ><input
+            id="task-title"
+            name="taskTitle"
+            [(ngModel)]="taskDraft.title"
+            maxlength="100"
+            autocomplete="off"
+            required
+            placeholder="O que precisa ser feito?"
+            [attr.aria-invalid]="!!errors['task-title']"
+            [attr.aria-describedby]="errors['task-title'] ? 'task-title-error' : null"
+          />
+          @if (errors['task-title']) {
+            <p class="field-error" id="task-title-error">{{ errors['task-title'] }}</p>
+          }
+        </div>
+        <div class="form-field">
+          <label for="task-description"
+            >Descrição <span class="optional-label">(opcional)</span></label
+          ><textarea
+            id="task-description"
+            name="taskDescription"
+            [(ngModel)]="taskDraft.description"
+            rows="3"
+            maxlength="2000"
+            style="resize: none"
+            placeholder="Adicione detalhes sobre esta tarefa."
+          ></textarea>
+        </div>
+        <div class="form-two-columns">
+          <div class="form-field">
+            <label for="task-priority">Prioridade</label
+            ><select id="task-priority" name="taskPriority" [(ngModel)]="taskDraft.priority">
+              <option value="low">Baixa</option>
+              <option value="medium">Média</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="task-deadline">Prazo <span class="optional-label">(opcional)</span></label
+            ><input
+              id="task-deadline"
+              name="taskDeadline"
+              type="date"
+              [(ngModel)]="taskDraft.deadline"
+            />
+          </div>
+        </div>
+        <label class="checkbox-field"
+          ><input type="checkbox" name="taskDone" [(ngModel)]="taskDraft.done" /> Tarefa
+          concluída</label
+        >
+      }
+      @if (editor === 'note') {
+        <div class="form-field">
+          <label for="note-title">Título</label
+          ><input
+            id="note-title"
+            name="noteTitle"
+            [(ngModel)]="noteDraft.title"
+            maxlength="120"
+            autocomplete="off"
+            required
+            placeholder="Ex.: Ideias para o projeto"
+            [attr.aria-invalid]="!!errors['note-title']"
+            [attr.aria-describedby]="errors['note-title'] ? 'note-title-error' : null"
+          />
+          @if (errors['note-title']) {
+            <p class="field-error" id="note-title-error">{{ errors['note-title'] }}</p>
+          }
+        </div>
+        <div class="form-field">
+          <label for="note-content">Anotação</label
+          ><textarea
+            id="note-content"
+            name="noteContent"
+            [(ngModel)]="noteDraft.content"
+            rows="7"
+            maxlength="10000"
+            style="resize: none"
+            required
+            placeholder="Escreva suas ideias, referências ou lembretes..."
+            [attr.aria-invalid]="!!errors['note-content']"
+            [attr.aria-describedby]="errors['note-content'] ? 'note-content-error' : null"
+          ></textarea>
+          @if (errors['note-content']) {
+            <p class="field-error" id="note-content-error">{{ errors['note-content'] }}</p>
+          }
+        </div>
+      }
+      @if (editor === 'member') {
+        <div class="form-field">
+          <label for="member-name">Nome</label
+          ><input
+            id="member-name"
+            name="memberName"
+            [(ngModel)]="memberDraft.name"
+            maxlength="100"
+            autocomplete="off"
+            required
+            [readonly]="!!editingId"
+            [attr.aria-invalid]="!!errors['member-name']"
+            [attr.aria-describedby]="errors['member-name'] ? 'member-name-error' : null"
+          />
+          @if (errors['member-name']) {
+            <p class="field-error" id="member-name-error">{{ errors['member-name'] }}</p>
+          }
+        </div>
+        <div class="form-field">
+          <label for="member-email">Email</label
+          ><input
+            id="member-email"
+            name="memberEmail"
+            type="email"
+            [(ngModel)]="memberDraft.email"
+            maxlength="100"
+            autocomplete="off"
+            placeholder="nome@exemplo.com"
+            required
+            [readonly]="!!editingId"
+            [attr.aria-invalid]="!!errors['member-email']"
+            [attr.aria-describedby]="errors['member-email'] ? 'member-email-error' : null"
+          />
+          @if (errors['member-email']) {
+            <p class="field-error" id="member-email-error">{{ errors['member-email'] }}</p>
+          }
+        </div>
+        <div class="form-field">
+          <label for="member-role">Permissão</label
+          ><select
+            id="member-role"
+            name="memberRole"
+            [(ngModel)]="memberDraft.role"
+            aria-describedby="member-role-help"
+          >
+            <option value="viewer">Leitor — pode visualizar</option>
+            <option value="editor">Editor — pode editar tarefas e anotações</option>
+          </select>
+          <p class="field-help" id="member-role-help">
+            Esta escolha organiza os perfis apenas na demonstração.
+          </p>
+        </div>
+      }
+      <div class="editor-footer">
+        <button class="btn btn-secondary" type="button" (click)="closeEditor()" [disabled]="saving">
+          Cancelar</button
+        ><button class="btn btn-primary" type="submit" [disabled]="saving || discardPrompt">
+          {{ saving ? 'Salvando…' : submitLabel }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
+
+@if (confirmation; as confirm) {
+  <app-modal
+    [title]="confirm.title"
+    [description]="confirm.description"
+    (closed)="cancelConfirmation()"
+  >
+    @if (formError) {
+      <p class="form-alert" role="alert">{{ formError }}</p>
+    }
+    <div class="confirmation-footer">
+      <button
+        class="btn btn-secondary"
+        type="button"
+        (click)="cancelConfirmation()"
+        [disabled]="saving"
+        autofocus
+      >
+        Cancelar</button
+      ><button
+        class="btn"
+        [class.btn-danger]="confirm.danger"
+        [class.btn-primary]="!confirm.danger"
+        type="button"
+        (click)="confirmAction()"
+        [disabled]="saving"
+      >
+        {{ saving ? 'Salvando…' : confirm.label }}
+      </button>
+    </div>
+  </app-modal>
+}

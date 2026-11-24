@@ -8,8 +8,13 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "setup": "[ -e \"src/environments/.env\" ] && echo \".env file already exists\" || cp src/environments/.env.example src/environments/.env && echo \".env file created\"",
-    "test": "ng test"
+    "setup": "node scripts/setup.mjs",
+    "test": "ng test",
+    "typecheck": "ngc --noEmit -p tsconfig.app.json",
+    "test:ci": "node scripts/test-ci.mjs",
+    "test:e2e": "playwright test",
+    "format": "prettier --write \"src/**/*.{ts,html,css}\" \"*.{ts,json,md}\" \"e2e/**/*.ts\" \"scripts/*.mjs\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css}\" \"*.{ts,json,md}\" \"e2e/**/*.ts\" \"scripts/*.mjs\""
   },
   "private": true,
   "packageManager": "npm@11.19.1",
@@ -20,6 +25,7 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "@fontsource/inter": "^5.3.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -27,7 +33,9 @@
     "@angular/build": "^22.2.5",
     "@angular/cli": "^22.2.5",
     "@angular/compiler-cli": "^22.2.0",
+    "@axe-core/playwright": "^4.14.1",
     "@ngx-env/builder": "^22.0.0",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.1.12",
     "jsdom": "^30.0.0",
     "postcss": "^8.5.3",
@@ -45,5 +53,8 @@
   "overrides": {
     "glob": "^14.0.2",
     "minimatch": "^11.0.1"
+  },
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
   }
 }

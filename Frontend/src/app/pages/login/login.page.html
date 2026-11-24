@@ -1,0 +1,119 @@
+<div class="public-page auth-page">
+  <header class="public-header"><app-brand /><app-theme-toggle /></header>
+  <main id="main-content" class="auth-main">
+    <section class="auth-card" aria-labelledby="login-title">
+      <div class="auth-art" aria-hidden="true"><app-illustration kind="cube" /></div>
+      <div class="auth-content">
+        <div class="auth-heading">
+          <h1 id="login-title">Bem-vindo de volta!</h1>
+          <p>Faça login para continuar.</p>
+        </div>
+        @if (workspace.demoMode) {
+          <div class="demo-notice">
+            <app-icon name="info" [size]="16" />
+            <p>
+              <strong>Demonstração local.</strong> Um único espaço fictício neste navegador. O
+              acesso é simulado; a senha não é verificada, enviada nem armazenada. Use dados
+              fictícios.
+            </p>
+          </div>
+        }
+        <form #loginForm novalidate (ngSubmit)="submit(loginForm)" [attr.aria-busy]="busy()">
+          <div class="form-field">
+            <label for="login-email" class="sr-only">Email</label>
+            <div class="input-wrap">
+              <app-icon name="mail" [size]="19" />
+              <input
+                id="login-email"
+                type="email"
+                name="email"
+                autocomplete="username"
+                maxlength="100"
+                placeholder="Email"
+                [(ngModel)]="email"
+                required
+                [attr.aria-invalid]="!!emailError"
+                [attr.aria-describedby]="emailError ? 'login-email-error' : null"
+              />
+            </div>
+            @if (emailError) {
+              <p id="login-email-error" class="field-error">{{ emailError }}</p>
+            }
+          </div>
+          <div class="form-field">
+            <label for="login-password" class="sr-only">Senha</label>
+            <div class="input-wrap has-reveal">
+              <app-icon name="lock" [size]="19" />
+              <input
+                id="login-password"
+                [type]="showPassword() ? 'text' : 'password'"
+                name="password"
+                autocomplete="current-password"
+                minlength="8"
+                maxlength="128"
+                placeholder="Senha"
+                [(ngModel)]="password"
+                required
+                [attr.aria-invalid]="!!passwordError"
+                [attr.aria-describedby]="
+                  passwordError ? 'login-password-help login-password-error' : 'login-password-help'
+                "
+              />
+              <button
+                class="password-toggle"
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+                [attr.aria-pressed]="showPassword()"
+              >
+                <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="18" />
+              </button>
+            </div>
+            <p id="login-password-help" class="password-help">Use pelo menos 8 caracteres.</p>
+            @if (passwordError) {
+              <p id="login-password-error" class="field-error">{{ passwordError }}</p>
+            }
+          </div>
+          @if (error()) {
+            <p class="form-alert" role="alert">{{ error() }}</p>
+          }
+          <button class="btn btn-primary btn-block auth-submit" type="submit" [disabled]="busy()">
+            @if (busy()) {
+              <span class="button-spinner" aria-hidden="true"></span>
+            }
+            {{ busy() ? 'Entrando…' : 'Entrar' }}
+          </button>
+        </form>
+        <div class="auth-divider"><span>ou</span></div>
+        <button
+          class="btn btn-secondary btn-block google-button"
+          type="button"
+          disabled
+          aria-describedby="google-unavailable"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M21.8 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.5a4.7 4.7 0 0 1-2 3.1v2.6h3.3c1.9-1.8 3-4.4 3-7.6Z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 22c2.7 0 5-.9 6.8-2.5l-3.3-2.6c-.9.6-2.1 1-3.5 1-2.6 0-4.9-1.8-5.7-4.2H2.9v2.7A10.2 10.2 0 0 0 12 22Z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M6.3 13.7a6.2 6.2 0 0 1 0-3.4V7.6H2.9a10 10 0 0 0 0 8.8l3.4-2.7Z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 6.1c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10.2 10.2 0 0 0-9.1 5.6l3.4 2.7C7.1 7.9 9.4 6.1 12 6.1Z"
+            />
+          </svg>
+          Entrar com Google
+        </button>
+        <p id="google-unavailable" class="google-help">Login com Google ainda não configurado.</p>
+        <p class="auth-footer">Não tem uma conta? <a routerLink="/cadastro">Criar uma conta</a></p>
+      </div>
+    </section>
+  </main>
+</div>

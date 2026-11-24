@@ -1,0 +1,283 @@
+<div class="dashboard-page">
+  <header class="dashboard-heading">
+    <div>
+      <h1>{{ allProjects() ? 'Meus projetos' : 'Olá, ' + firstName() + '!' }}</h1>
+      <p>
+        {{
+          allProjects()
+            ? 'Tudo o que você está construindo, em um só lugar.'
+            : 'Aqui está um resumo dos seus projetos.'
+        }}
+      </p>
+    </div>
+    <button class="btn btn-primary new-project-button" type="button" (click)="openCreate()">
+      <app-icon name="plus" [size]="18" /> Novo projeto
+    </button>
+  </header>
+
+  @if (!allProjects()) {
+    <section class="stats-grid" aria-label="Resumo dos projetos">
+      <article class="stat-card">
+        <span class="stat-icon blue"><app-icon name="folder" [size]="25" /></span>
+        <div>
+          <h2>Meus projetos</h2>
+          <strong>{{ totalProjects() }}</strong>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon green"><app-icon name="check-circle" [size]="24" /></span>
+        <div>
+          <h2>Tarefas concluídas</h2>
+          <strong>{{ completedTasks() }}</strong>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon red"><app-icon name="clock" [size]="24" /></span>
+        <div>
+          <h2>Em andamento</h2>
+          <strong>{{ ongoingProjects() }}</strong>
+        </div>
+      </article>
+    </section>
+  }
+
+  <section aria-labelledby="projects-title">
+    <div class="projects-section-heading">
+      <h2 id="projects-title">{{ allProjects() ? 'Todos os projetos' : 'Seus projetos' }}</h2>
+      @if (!allProjects()) {
+        <a routerLink="/projetos" class="view-all"
+          >Ver todos <app-icon name="arrow-right" [size]="16"
+        /></a>
+      }
+    </div>
+
+    @if (allProjects()) {
+      <div class="projects-toolbar">
+        <div class="project-search">
+          <app-icon name="search" [size]="19" />
+          <label for="project-search" class="sr-only">Buscar projetos por nome ou descrição</label>
+          <input
+            #searchInput
+            id="project-search"
+            type="search"
+            placeholder="Buscar projetos…"
+            [ngModel]="query()"
+            (ngModelChange)="search($event)"
+            autocomplete="off"
+          />
+          @if (query()) {
+            <button
+              class="icon-button search-clear"
+              type="button"
+              aria-label="Limpar busca de projetos"
+              (click)="clearSearch(searchInput)"
+            >
+              <app-icon name="x" [size]="17" />
+            </button>
+          }
+        </div>
+        <div class="project-filters" role="group" aria-label="Filtrar projetos por situação">
+          @for (option of filters; track option.value) {
+            <button
+              type="button"
+              [class.selected]="filter() === option.value"
+              [attr.aria-pressed]="filter() === option.value"
+              (click)="setFilter(option.value)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </div>
+      <p class="results-count" aria-live="polite">
+        {{ filteredProjects().length }}
+        {{ filteredProjects().length === 1 ? 'projeto encontrado' : 'projetos encontrados' }}
+      </p>
+    }
+
+    <div class="projects-grid">
+      @for (project of visibleProjects(); track project.id) {
+        <article class="project-card" [class]="'project-card cover-' + project.color">
+          <a
+            class="project-main"
+            [id]="'project-' + project.id"
+            [routerLink]="['/projeto', project.id]"
+            [attr.aria-label]="'Abrir projeto: ' + project.title"
+          >
+            <div class="project-cover" aria-hidden="true">
+              <div class="project-art"><app-illustration [kind]="project.icon" /></div>
+            </div>
+            <div class="project-card-body">
+              <h3>{{ project.title }}</h3>
+              <p class="project-updated">
+                <time [dateTime]="project.updatedAt" [title]="fullDate(project.updatedAt)">{{
+                  updatedLabel(project.updatedAt)
+                }}</time>
+              </p>
+              <div class="project-progress">
+                <progress
+                  max="100"
+                  [value]="progress(project)"
+                  [attr.aria-label]="'Progresso de ' + project.title"
+                >
+                  {{ progress(project) }}%</progress
+                ><span>{{ progress(project) }}%</span>
+              </div>
+            </div>
+          </a>
+          <details class="project-menu">
+            <summary
+              [attr.aria-label]="'Ações do projeto ' + project.title"
+              [title]="'Ações do projeto ' + project.title"
+            >
+              <app-icon name="more" [size]="20" />
+            </summary>
+            <div class="project-menu-options">
+              <a [routerLink]="['/projeto', project.id]"
+                ><app-icon name="folder" [size]="16" /> Abrir projeto</a
+              ><a [routerLink]="['/projeto', project.id]" [queryParams]="{ tab: 'settings' }"
+                ><app-icon name="settings" [size]="16" /> Configurações</a
+              >
+            </div>
+          </details>
+        </article>
+      } @empty {
+        <div class="projects-empty">
+          <span class="empty-folder"
+            ><app-icon [name]="totalProjects() ? 'search' : 'folder'" [size]="32"
+          /></span>
+          <h3>
+            {{ totalProjects() ? 'Nenhum projeto encontrado' : 'Seu próximo projeto começa aqui' }}
+          </h3>
+          <p>
+            {{
+              totalProjects()
+                ? 'Tente outro nome ou altere os filtros para encontrar seu projeto.'
+                : 'Crie um projeto para organizar tarefas, ideias e próximos passos.'
+            }}
+          </p>
+          @if (totalProjects()) {
+            <button class="btn btn-secondary" type="button" (click)="resetFilters()">
+              Limpar filtros
+            </button>
+          } @else {
+            <button class="btn btn-primary" type="button" (click)="openCreate()">
+              <app-icon name="plus" [size]="17" /> Criar primeiro projeto
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (filteredProjects().length > visibleProjects().length) {
+      <div class="projects-pagination">
+        <p>Mostrando {{ visibleProjects().length }} de {{ filteredProjects().length }} projetos.</p>
+        @if (allProjects()) {
+          <button class="btn btn-secondary" type="button" (click)="showMore()">
+            Carregar mais projetos <app-icon name="chevron-down" [size]="16" />
+          </button>
+        } @else {
+          <a class="btn btn-secondary" routerLink="/projetos"
+            >Ver todos os projetos <app-icon name="arrow-right" [size]="16"
+          /></a>
+        }
+      </div>
+    }
+  </section>
+</div>
+
+@if (creating()) {
+  <app-modal
+    title="Novo projeto"
+    description="Dê um nome à sua próxima ideia e comece a organizar."
+    (closed)="closeCreate()"
+  >
+    <form #createForm novalidate (ngSubmit)="create()" [attr.aria-busy]="saving()">
+      <div class="form-field">
+        <label for="new-project-title"
+          >Nome do projeto <span class="required-text">(obrigatório)</span></label
+        ><input
+          id="new-project-title"
+          name="title"
+          type="text"
+          placeholder="Ex.: Trabalho de Redes"
+          [(ngModel)]="draft.title"
+          required
+          maxlength="120"
+          autofocus
+          [attr.aria-invalid]="!!titleError"
+          [attr.aria-describedby]="titleError ? 'new-project-title-error' : null"
+        />
+        @if (titleError) {
+          <p id="new-project-title-error" class="field-error">{{ titleError }}</p>
+        }
+      </div>
+      <div class="form-field">
+        <label for="new-project-description"
+          >Descrição <span class="optional-text">(opcional)</span></label
+        ><textarea
+          id="new-project-description"
+          name="description"
+          rows="4"
+          maxlength="5000"
+          placeholder="O que você quer realizar com este projeto?"
+          [(ngModel)]="draft.description"
+          style="resize: none"
+        ></textarea>
+      </div>
+      <fieldset class="icon-fieldset">
+        <legend>Ícone do projeto</legend>
+        <div class="icon-options">
+          @for (icon of icons; track icon.value) {
+            <label class="icon-option" [class.selected]="draft.icon === icon.value"
+              ><input
+                type="radio"
+                name="projectIcon"
+                [value]="icon.value"
+                [(ngModel)]="draft.icon"
+              /><app-icon [name]="icon.value" [size]="23" /><span>{{ icon.label }}</span></label
+            >
+          }
+        </div>
+      </fieldset>
+      <div class="form-field color-field">
+        <label for="new-project-color">Cor da capa</label
+        ><select id="new-project-color" name="color" [(ngModel)]="draft.color">
+          <option value="blue">Azul</option>
+          <option value="amber">Âmbar</option>
+          <option value="violet">Violeta</option>
+          <option value="teal">Verde</option>
+        </select>
+      </div>
+      @if (formError()) {
+        <p class="form-alert" role="alert">{{ formError() }}</p>
+      }
+      @if (discardPrompt()) {
+        <div class="discard-draft" role="alert">
+          <strong>Descartar este rascunho?</strong>
+          <p>O projeto ainda não foi salvo. Suas alterações serão perdidas.</p>
+          <div>
+            <button class="btn btn-secondary btn-sm" type="button" (click)="continueEditing()">
+              Continuar editando</button
+            ><button class="btn btn-danger btn-sm" type="button" (click)="discardChanges()">
+              Descartar rascunho
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="modal-actions">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="closeCreate()"
+            [disabled]="saving()"
+          >
+            Cancelar</button
+          ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Criando…' : 'Criar projeto' }}
+          </button>
+        </div>
+      }
+    </form>
+  </app-modal>
+}

@@ -1,0 +1,127 @@
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Menu principal">
+    <div class="sidebar-brand">
+      <app-brand /><a
+        class="mobile-account avatar"
+        routerLink="/perfil"
+        aria-label="Editar meu perfil"
+      >
+        @if (workspace.user()?.avatar) {
+          <img [src]="workspace.user()!.avatar" alt="" />
+        } @else {
+          {{ initial() }}
+        }
+      </a>
+    </div>
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+      <a routerLink="/home" routerLinkActive="active" ariaCurrentWhenActive="page"
+        ><app-icon name="home" /><span>Início</span></a
+      >
+      <a
+        routerLink="/projetos"
+        routerLinkActive="active"
+        [class.active]="path().startsWith('/projeto/')"
+        ariaCurrentWhenActive="page"
+        ><app-icon name="folder" /><span>Meus Projetos</span></a
+      >
+      <a routerLink="/perfil" routerLinkActive="active" ariaCurrentWhenActive="page"
+        ><app-icon name="settings" /><span>Configurações</span></a
+      >
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="account-link" routerLink="/perfil"
+        ><span class="avatar">
+          @if (workspace.user()?.avatar) {
+            <img [src]="workspace.user()!.avatar" alt="" />
+          } @else {
+            {{ initial() }}
+          }</span
+        ><span>{{ firstName() }}</span
+        ><app-icon name="chevron-down" [size]="15"
+      /></a>
+      <button
+        class="icon-button"
+        type="button"
+        aria-label="Sair da demonstração"
+        title="Sair"
+        (click)="signOut()"
+      >
+        <app-icon name="log-out" [size]="18" />
+      </button>
+    </div>
+  </aside>
+  <div class="app-content">
+    <header class="topbar">
+      <div class="workspace-label">Meu espaço<span class="demo-badge">Demonstração</span></div>
+      <div class="topbar-actions">
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Buscar projetos"
+          title="Buscar projetos"
+          (click)="search()"
+        >
+          <app-icon name="search" />
+        </button>
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Ver tarefas pendentes"
+          title="Tarefas pendentes"
+          (click)="showNotifications.set(true)"
+        >
+          <app-icon name="bell" />
+        </button>
+        <app-theme-toggle />
+        <button
+          class="icon-button mobile-exit"
+          type="button"
+          aria-label="Sair da demonstração"
+          (click)="signOut()"
+        >
+          <app-icon name="log-out" [size]="19" />
+        </button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1" class="workspace-main">
+      @if (workspace.storageError()) {
+        <div class="form-alert storage-alert" role="alert">
+          <app-icon name="alert" [size]="18" /><span>{{ workspace.storageError() }}</span>
+        </div>
+      }
+      <router-outlet />
+    </main>
+    <footer class="workspace-footer">
+      <span class="demo-dot" aria-hidden="true"></span>Demonstração local · as alterações ficam
+      neste navegador.
+    </footer>
+  </div>
+</div>
+@if (showNotifications()) {
+  <app-modal
+    title="Tarefas pendentes"
+    description="Continue de onde parou nos seus projetos."
+    (closed)="showNotifications.set(false)"
+  >
+    @if (pendingTasks().length) {
+      <div class="pending-list">
+        @for (task of pendingTasks(); track task.id) {
+          <a [routerLink]="['/projeto', task.projectId]" (click)="showNotifications.set(false)"
+            ><span class="pending-icon"><app-icon name="clock" [size]="20" /></span
+            ><span
+              ><strong>{{ task.title }}</strong
+              ><small>{{ task.projectTitle }}</small></span
+            ><app-icon name="chevron-right" [size]="16"
+          /></a>
+        }
+      </div>
+    } @else {
+      <div class="notifications-empty">
+        <app-icon name="check-circle" [size]="36" />
+        <h3>Tudo em dia!</h3>
+        <p class="muted">Você não tem tarefas pendentes.</p>
+      </div>
+    }
+    <p class="field-help">São lembretes das suas tarefas locais. Nenhuma notificação é enviada.</p>
+  </app-modal>
+}

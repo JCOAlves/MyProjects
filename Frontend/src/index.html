@@ -1,13 +1,26 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Frontend</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>PPI — organize seus projetos</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Organize projetos, acompanhe tarefas e reúna suas ideias com o PPI."
+    />
+    <meta name="theme-color" content="#1261d8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem('ppi-theme') === 'dark' ? 'dark' : 'light';
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>

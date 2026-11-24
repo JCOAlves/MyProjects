@@ -1,0 +1,144 @@
+<div class="public-page auth-page">
+  <header class="public-header"><app-brand /><app-theme-toggle /></header>
+  <main id="main-content" class="auth-main">
+    <section class="auth-card" aria-labelledby="register-title">
+      <div class="auth-art" aria-hidden="true"><app-illustration kind="account" /></div>
+      <div class="auth-content register-content">
+        <div class="auth-heading">
+          <h1 id="register-title">Criar uma conta</h1>
+          <p>Comece a usar o PPI hoje mesmo!</p>
+        </div>
+        @if (workspace.demoMode) {
+          <div class="demo-notice">
+            <app-icon name="info" [size]="16" />
+            <p>
+              <strong>Demonstração local.</strong> Um único espaço fictício neste navegador. O
+              acesso é simulado; a senha não é verificada, enviada nem armazenada. Use dados
+              fictícios.
+            </p>
+          </div>
+        }
+        <form #registerForm novalidate (ngSubmit)="submit(registerForm)" [attr.aria-busy]="busy()">
+          <div class="form-field">
+            <label for="register-name" class="sr-only">Nome completo</label>
+            <div class="input-wrap">
+              <app-icon name="user" [size]="19" /><input
+                id="register-name"
+                type="text"
+                name="name"
+                autocomplete="name"
+                placeholder="Nome completo"
+                [(ngModel)]="name"
+                required
+                maxlength="100"
+                [attr.aria-invalid]="!!nameError"
+                [attr.aria-describedby]="nameError ? 'register-name-error' : null"
+              />
+            </div>
+            @if (nameError) {
+              <p id="register-name-error" class="field-error">{{ nameError }}</p>
+            }
+          </div>
+          <div class="form-field">
+            <label for="register-email" class="sr-only">Email</label>
+            <div class="input-wrap">
+              <app-icon name="mail" [size]="19" /><input
+                id="register-email"
+                type="email"
+                name="email"
+                autocomplete="email"
+                placeholder="Email"
+                [(ngModel)]="email"
+                required
+                maxlength="100"
+                [attr.aria-invalid]="!!emailError"
+                [attr.aria-describedby]="emailError ? 'register-email-error' : null"
+              />
+            </div>
+            @if (emailError) {
+              <p id="register-email-error" class="field-error">{{ emailError }}</p>
+            }
+          </div>
+          <div class="form-field">
+            <label for="register-password" class="sr-only">Senha</label>
+            <div class="input-wrap has-reveal">
+              <app-icon name="lock" [size]="19" /><input
+                id="register-password"
+                [type]="showPassword() ? 'text' : 'password'"
+                name="password"
+                autocomplete="new-password"
+                maxlength="128"
+                placeholder="Senha"
+                [(ngModel)]="password"
+                required
+                minlength="8"
+                [attr.aria-invalid]="!!passwordError"
+                [attr.aria-describedby]="
+                  passwordError
+                    ? 'register-password-help register-password-error'
+                    : 'register-password-help'
+                "
+              />
+              <button
+                class="password-toggle"
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+                [attr.aria-pressed]="showPassword()"
+              >
+                <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="18" />
+              </button>
+            </div>
+            <p id="register-password-help" class="password-help">Use pelo menos 8 caracteres.</p>
+            @if (passwordError) {
+              <p id="register-password-error" class="field-error">{{ passwordError }}</p>
+            }
+          </div>
+          <div class="form-field">
+            <label for="register-confirmation" class="sr-only">Confirmar senha</label>
+            <div class="input-wrap has-reveal">
+              <app-icon name="lock" [size]="19" /><input
+                id="register-confirmation"
+                [type]="showConfirmation() ? 'text' : 'password'"
+                name="confirmation"
+                autocomplete="new-password"
+                maxlength="128"
+                placeholder="Confirmar senha"
+                [(ngModel)]="confirmation"
+                required
+                [attr.aria-invalid]="!!confirmationError"
+                [attr.aria-describedby]="confirmationError ? 'register-confirmation-error' : null"
+              />
+              <button
+                class="password-toggle"
+                type="button"
+                (click)="showConfirmation.set(!showConfirmation())"
+                [attr.aria-label]="
+                  showConfirmation()
+                    ? 'Ocultar confirmação de senha'
+                    : 'Mostrar confirmação de senha'
+                "
+                [attr.aria-pressed]="showConfirmation()"
+              >
+                <app-icon [name]="showConfirmation() ? 'eye-off' : 'eye'" [size]="18" />
+              </button>
+            </div>
+            @if (confirmationError) {
+              <p id="register-confirmation-error" class="field-error">{{ confirmationError }}</p>
+            }
+          </div>
+          @if (error()) {
+            <p class="form-alert" role="alert">{{ error() }}</p>
+          }
+          <button class="btn btn-primary btn-block auth-submit" type="submit" [disabled]="busy()">
+            @if (busy()) {
+              <span class="button-spinner" aria-hidden="true"></span>
+            }
+            {{ busy() ? 'Cadastrando…' : 'Cadastrar' }}
+          </button>
+        </form>
+        <p class="auth-footer">Já tem uma conta? <a routerLink="/login">Faça login</a></p>
+      </div>
+    </section>
+  </main>
+</div>

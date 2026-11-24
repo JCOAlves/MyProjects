@@ -1,100 +1,110 @@
 import { Injectable } from '@angular/core';
-import environment from "../environments/environment";
-import { type RespostaHTTP, type DadosRequisicao } from "./tipagemDados";
+import environment from '../environments/environment';
+import type { DadosRequisicao, RespostaHTTP } from './tipagemDados';
 
-console.log(environment)
-
-// Classe de serviço para requisições HTTP ao servidor
+/** Transport only. This class does not simulate authentication or repair server contracts. */
 @Injectable({ providedIn: 'root' })
 export class RequestHTTP {
-    #API_Rota: string = `http://${environment.HostBackend}:${environment.PortBackend}`;
+  private readonly baseUrl = environment.apiUrl.replace(/\/$/, '');
+  private readonly timeoutMs = 12_000;
 
-    // Função para requisição GET
-    async GET(rota: string): Promise<RespostaHTTP | { erro: string }> {
-        try {
-            if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
-            };
+  GET<T = DadosRequisicao>(rota: string): Promise<RespostaHTTP<T>> {
+    return this.request<T>('GET', rota);
+  }
 
-            const resposta: Response = await fetch(this.#API_Rota + rota, { credentials: 'include' });
-            const dados: RespostaHTTP = await resposta.json();
-            return dados;
+  POST<T = DadosRequisicao>(rota: string, dados: unknown): Promise<RespostaHTTP<T>> {
+    return this.request<T>('POST', rota, dados);
+  }
 
-        } catch (error) {
-            console.error("Erro na busca de dados no servidor: ", error);
-            return { erro: `Erro na busca de dados no servidor: ${error}` };
-        };
-    };
+  PUT<T = DadosRequisicao>(rota: string, dados: unknown): Promise<RespostaHTTP<T>> {
+    return this.request<T>('PUT', rota, dados);
+  }
 
-    // Função para requisição POST
-    async POST(rota: string, dados: DadosRequisicao): Promise<RespostaHTTP | { erro: string }> {
-        try {
-            if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
-            };
+  DELETE<T = DadosRequisicao>(rota: string): Promise<RespostaHTTP<T>> {
+    return this.request<T>('DELETE', rota);
+  }
 
-            const objetoJSON: string = JSON.stringify(dados);
-            const resposta: Response = await fetch(this.#API_Rota + rota, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: objetoJSON,
-                credentials: 'include'
-            });
-            const retorno: RespostaHTTP = await resposta.json();
-            return retorno;
+  private async request<T>(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    route: string,
+    body?: unknown,
+  ): Promise<RespostaHTTP<T>> {
+    if (
+      typeof route !== 'string' ||
+      !route.startsWith('/') ||
+      route.startsWith('//') ||
+      /[\r\n\\]/.test(route)
+    ) {
+      return this.failure(400, 'A rota da API deve ser um caminho relativo iniciado por /.');
+    }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const response = await fetch(`${this.baseUrl}${route}`, {
+        method,
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        },
+        ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+        signal: controller.signal,
+      });
 
-        } catch (error) {
-            console.error("Erro no envio de novos dados ao servidor: ", error);
-            return { erro: `Erro no envio de novos dados ao servidor: ${error}` };
-        };
-    };
+      if (response.status === 204) {
+        return { sucesso: true, status: response.status, mensagem: 'Operação concluída.' };
+      }
 
-    // Função para requisição PUT
-    async PUT(rota: string, dados: DadosRequisicao): Promise<RespostaHTTP | { erro: string }> {
-        try {
-            if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
-            };
+      let result: unknown;
+      try {
+        result = await response.json();
+      } catch {
+        if (controller.signal.aborted)
+          return this.failure(408, 'A API demorou para responder. Tente novamente.');
+        return this.failure(
+          response.status,
+          'A API retornou uma resposta inválida. Verifique a implementação do servidor.',
+        );
+      }
 
-            const objetoJSON: string = JSON.stringify(dados);
-            const resposta: Response = await fetch(this.#API_Rota + rota, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: objetoJSON,
-                credentials: 'include'
-            });
-            const retorno: RespostaHTTP = await resposta.json();
-            return retorno;
+      if (!this.isEnvelope(result)) {
+        return this.failure(
+          response.status,
+          'A resposta da API não corresponde ao contrato esperado.',
+        );
+      }
 
-        } catch (error) {
-            console.error("Erro no envio de dados atualizados ao servidor: ", error);
-            return { erro: `Erro no envio de dados atualizados ao servidor: ${error}` };
-        };
-    };
+      return {
+        sucesso: response.ok && result.sucesso,
+        status: response.status,
+        mensagem: result.mensagem,
+        ...(response.ok && result.sucesso && 'dados' in result ? { dados: result.dados as T } : {}),
+        ...('erro' in result ? { erro: result.erro } : {}),
+      };
+    } catch {
+      return controller.signal.aborted
+        ? this.failure(408, 'A API demorou para responder. Tente novamente.')
+        : this.failure(
+            0,
+            'Não foi possível conectar à API. Verifique a conexão e a configuração do servidor.',
+          );
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
-    // Função para requisição DELETE
-    async DELETE(rota: string): Promise<RespostaHTTP | { erro: string }> {
-        try {
-            if (!rota) {
-                console.error("Não foi fornecida a rota do servidor ou rota fornecida inválida.")
-                return { erro: "Não foi fornecida a rota do servidor ou rota fornecida inválida." }
-            };
+  private isEnvelope(value: unknown): value is RespostaHTTP<unknown> {
+    if (!value || typeof value !== 'object') return false;
+    const item = value as Record<string, unknown>;
+    return (
+      typeof item['sucesso'] === 'boolean' &&
+      typeof item['status'] === 'number' &&
+      typeof item['mensagem'] === 'string'
+    );
+  }
 
-            const resposta: Response = await fetch(this.#API_Rota + rota, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                credentials: 'include'
-            });
-            const retorno: RespostaHTTP = await resposta.json();
-            return retorno;
-
-        } catch (error) {
-            console.error("Erro na solicitação de exclusão dados no servidor:", error);
-            return { erro: `Erro na solicitação de exclusão dados no servidor: ${error}` };
-        };
-    };
-};
+  private failure<T>(status: number, mensagem: string): RespostaHTTP<T> {
+    return { sucesso: false, status, mensagem, erro: mensagem };
+  }
+}

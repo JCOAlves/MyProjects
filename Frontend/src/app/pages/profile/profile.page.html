@@ -1,0 +1,132 @@
+<section class="profile-panel panel" aria-labelledby="profile-title">
+  <header class="profile-heading">
+    <span class="profile-heading-icon" aria-hidden="true"
+      ><svg width="39" height="42" viewBox="0 0 39 42" fill="none" focusable="false">
+        <circle cx="16" cy="12" r="8" fill="#1d6cd8" />
+        <path d="M1 36a15 15 0 0 1 30 0v3H1v-3Z" fill="#1d6cd8" />
+        <circle cx="33" cy="5" r="4" fill="#73aaff" /></svg
+    ></span>
+    <div>
+      <h1 id="profile-title">Editar perfil</h1>
+      <p>Atualize suas informações abaixo.</p>
+    </div>
+  </header>
+
+  <form class="profile-form" novalidate (ngSubmit)="save()" [attr.aria-busy]="saving()">
+    <div class="profile-photo-column">
+      <div class="profile-avatar" [class.has-photo]="!!avatar">
+        @if (avatar) {
+          <img [src]="avatar" alt="Prévia da foto de perfil" width="112" height="112" />
+        } @else {
+          <span aria-label="Inicial do nome">{{ initial }}</span>
+        }
+      </div>
+      <input
+        #photoInput
+        id="profile-photo"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        hidden
+        (change)="selectPhoto($event)"
+        aria-label="Escolher foto de perfil"
+      />
+      <button
+        class="btn btn-secondary btn-sm photo-button"
+        type="button"
+        (click)="photoInput.click()"
+        [disabled]="photoBusy() || saving()"
+        aria-describedby="photo-help photo-status"
+      >
+        {{ photoBusy() ? 'Carregando…' : 'Alterar foto' }}
+      </button>
+      @if (avatar) {
+        <button
+          class="remove-photo"
+          type="button"
+          (click)="removePhoto()"
+          [disabled]="photoBusy() || saving()"
+        >
+          Remover foto
+        </button>
+      }
+      <p class="photo-help" id="photo-help">
+        PNG, JPEG ou WebP.<br />Até 1 MB e 4096 × 4096 pixels.
+      </p>
+      <div id="photo-status" class="photo-status" aria-live="polite">
+        @if (photoBusy()) {
+          <span class="muted">Verificando a imagem…</span>
+        }
+        @if (photoError()) {
+          <p class="field-error" role="alert">{{ photoError() }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="profile-fields">
+      @if (saveError()) {
+        <p class="form-alert" role="alert">{{ saveError() }}</p>
+      }
+      <div class="form-field">
+        <label for="profile-name">Nome completo</label
+        ><input
+          id="profile-name"
+          name="profileName"
+          type="text"
+          [(ngModel)]="name"
+          autocomplete="name"
+          required
+          minlength="2"
+          maxlength="100"
+          [attr.aria-invalid]="!!errors['profile-name']"
+          [attr.aria-describedby]="errors['profile-name'] ? 'profile-name-error' : null"
+        />
+        @if (errors['profile-name']) {
+          <p class="field-error" id="profile-name-error">{{ errors['profile-name'] }}</p>
+        }
+      </div>
+      <div class="form-field">
+        <label for="profile-email">Email</label
+        ><input
+          id="profile-email"
+          name="profileEmail"
+          type="email"
+          [(ngModel)]="email"
+          autocomplete="email"
+          required
+          maxlength="100"
+          [attr.aria-invalid]="!!errors['profile-email']"
+          [attr.aria-describedby]="errors['profile-email'] ? 'profile-email-error' : null"
+        />
+        @if (errors['profile-email']) {
+          <p class="field-error" id="profile-email-error">{{ errors['profile-email'] }}</p>
+        }
+      </div>
+      <button
+        class="btn btn-primary save-profile"
+        type="submit"
+        [disabled]="saving() || photoBusy()"
+      >
+        {{ saving() ? 'Salvando…' : 'Salvar alterações' }}
+      </button>
+      <p class="profile-demo-note">
+        <app-icon name="info" [size]="15" /> Este perfil pertence à demonstração local.
+      </p>
+    </div>
+  </form>
+</section>
+
+@if (discardOpen()) {
+  <app-modal
+    title="Descartar alterações?"
+    description="Suas alterações de nome, email ou foto ainda não foram salvas. Ao sair desta página, elas serão descartadas."
+    (closed)="keepEditing()"
+  >
+    <div class="modal-actions">
+      <button class="btn btn-secondary" type="button" (click)="keepEditing()" autofocus>
+        Continuar editando</button
+      ><button class="btn btn-danger" type="button" (click)="discardChanges()">
+        Descartar alterações
+      </button>
+    </div>
+  </app-modal>
+}

@@ -24,17 +24,8 @@ Projeto de sistema de criação e gerenciamento de projetos para a matéria de P
    npm run start
    ``` 
 
-5. Agora na pasta Frontend, instale as dependências:
+5. Agora na pasta Frontend, execute os comandos:
    ```bash
-   npm install
-   ```
-
-6. Crie o arquivo de dependências do Frontend:
-   ```bash
-   npm run setup
-   ```
-
-7. Por fim, execute o comando:
-   ```bash
-   npm run start
+   npm ci
+   npm start
    ```

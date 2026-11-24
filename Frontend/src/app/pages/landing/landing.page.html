@@ -1,0 +1,40 @@
+<div class="public-page landing-page">
+  <header class="public-header">
+    <app-brand />
+    <app-theme-toggle />
+  </header>
+  <main id="main-content" class="landing-main">
+    <section class="landing-copy" aria-labelledby="landing-title">
+      <h1 id="landing-title">
+        Organize seus<br class="desktop-break" />
+        projetos com o PPI
+      </h1>
+      <p class="landing-description">
+        Planeje, colabore e acompanhe o progresso<br class="desktop-break" />
+        de seus projetos em um só lugar.
+      </p>
+      <div class="landing-actions">
+        <a class="btn btn-primary" routerLink="/login">Fazer login</a>
+        <a class="btn btn-secondary" routerLink="/cadastro"
+          >Criar uma conta <app-icon name="arrow-right" [size]="18"
+        /></a>
+      </div>
+      @if (workspace.demoMode) {
+        <button
+          class="demo-link"
+          type="button"
+          (click)="explore()"
+          [disabled]="busy()"
+          [attr.aria-busy]="busy()"
+        >
+          {{ busy() ? 'Abrindo demonstração…' : 'Explorar demonstração' }}
+          <app-icon name="arrow-right" [size]="16" />
+        </button>
+      }
+      @if (error()) {
+        <p class="form-alert" role="alert">{{ error() }}</p>
+      }
+    </section>
+    <div class="landing-art" aria-hidden="true"><app-illustration kind="tasks" /></div>
+  </main>
+</div>
