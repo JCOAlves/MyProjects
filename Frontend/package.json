@@ -8,14 +8,15 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "setup": "node scripts/setup.mjs",
+    "setup": "node scripts/setup.js",
     "test": "ng test",
     "typecheck": "ngc --noEmit -p tsconfig.app.json",
-    "test:ci": "node scripts/test-ci.mjs",
+    "test:ci": "node scripts/test-ci.js",
     "test:e2e": "playwright test",
     "format": "prettier --write \"src/**/*.{ts,html,css}\" \"*.{ts,json,md}\" \"e2e/**/*.ts\" \"scripts/*.mjs\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,css}\" \"*.{ts,json,md}\" \"e2e/**/*.ts\" \"scripts/*.mjs\""
   },
+  "type": "module",
   "private": true,
   "packageManager": "npm@11.19.1",
   "dependencies": {
