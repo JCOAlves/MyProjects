@@ -6,6 +6,8 @@ import Usuario from "../Models/Usuario.ts";
 import dadosProjeto from "../Validates/validateProjeto.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
+// Melhorar INNER JOIN
+
 // GET de projetos
 const listaProjetos = async (req: Request, res: Response): Promise<Response | void> => {
     try {
@@ -30,23 +32,23 @@ const listaProjetos = async (req: Request, res: Response): Promise<Response | vo
 
         let projetosLista: Projeto[] = [];
         nome || descricao || dataEntrega || status ?
-            projetosLista = await Projeto.findAll({ where: parametrosProjeto, include: { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } } }) :
-            projetosLista = await Projeto.findAll({ include: { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } } });
+            projetosLista = await Projeto.findAll({ where: parametrosProjeto, include: { model: Usuario, attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario"], through: { attributes: [] } } }) :
+            projetosLista = await Projeto.findAll({ include: { model: Usuario, attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario"], through: { attributes: [] } } });
 
         if (projetosLista.length === 0) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Projetos não encontrados ou não existentes no sistema.", projetosLista);
             RespostaHTTP.mostrarMensagem();
-            return res.status(404).json(RespostaHTTP.returnJSON);
+            return res.status(404).json(RespostaHTTP.returnJSON());
         };
 
         const RespostaHTTP = new ResponseHTTP(true, 200, "Usuários do sistema listados com sucesso.", projetosLista);
         RespostaHTTP.mostrarMensagem();
-        return res.status(200).json(RespostaHTTP.returnJSON);
+        return res.status(200).json(RespostaHTTP.returnJSON());
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de projetos do sistema.", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -58,25 +60,25 @@ const listaProjetoID = async (req: Request, res: Response): Promise<Response | v
         if (Number.isNaN(Number(ID)) || !ID) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "ID de projeto não foi fornecido ou é inválido.");
             RespostaHTTP.mostrarMensagem();
-            return res.status(400).json(RespostaHTTP.returnJSON);
+            return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
-        const projetoID: Projeto | null = await Projeto.findByPk(Number(ID), { include: { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } } });
+        const projetoID: Projeto | null = await Projeto.findByPk(Number(ID), { include: { model: Usuario, attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario"], through: { attributes: [] } } });
 
         if (!projetoID) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Projeto relacionado ao ID não foi encontrado ou não existe no sistema.");
             RespostaHTTP.mostrarMensagem();
-            return res.status(404).json(RespostaHTTP.returnJSON);
+            return res.status(404).json(RespostaHTTP.returnJSON());
         };
 
         const RespostaHTTP = new ResponseHTTP(true, 200, "Projeto listado por ID com sucesso.", projetoID);
         RespostaHTTP.mostrarMensagem();
-        return res.status(200).json(RespostaHTTP.returnJSON);
+        return res.status(200).json(RespostaHTTP.returnJSON());
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de projeto do sistema por ID.", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -88,13 +90,13 @@ const cadastraProjeto = async (req: Request, res: Response): Promise<Response | 
         if (!dadosRequisicao.success) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de projeto.", null, dadosRequisicao.error);
             RespostaHTTP.mostrarMensagem();
-            return res.status(400).json(RespostaHTTP.returnJSON);
+            return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -106,7 +108,7 @@ const editaProjeto = async (req: Request, res: Response): Promise<Response | voi
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -118,7 +120,7 @@ const deletaProjeto = async (req: Request, res: Response): Promise<Response | vo
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 

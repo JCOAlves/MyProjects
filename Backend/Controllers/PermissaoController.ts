@@ -6,6 +6,8 @@ import Projeto from "../Models/Projeto.ts";
 import dadosPermissao from "../Validates/validatePermissao.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
+// Melhorar INNER JOIN
+
 // GET de permissões
 const listaPermissoes = async (req: Request, res: Response): Promise<Response | void> => {
     try {
@@ -24,26 +26,31 @@ const listaPermissoes = async (req: Request, res: Response): Promise<Response | 
         tipo || projeto ?
             permissoesLista = await Permissao.findAll({
                 where: parametrosPermissao, include: [
-                    { model: Usuario, through: { attributes: ["ID_usuario", "nicknameUsuario"] } },
-                    { model: Projeto, through: { attributes: ["ID_projeto", "nomeProjeto"] } }
+                    { model: Usuario, attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario"] },
+                    { model: Projeto, attributes: ["ID_projeto", "nomeProjeto"] }
                 ]
-            }) :
-            permissoesLista = await Permissao.findAll({});
+            }) 
+            : permissoesLista = await Permissao.findAll({
+                include: [
+                    { model: Usuario, attributes: ["ID_usuario", "nomeUsuario", "nicknameUsuario"] },
+                    { model: Projeto, attributes: ["ID_projeto", "nomeProjeto"] }
+                ]
+            });
 
         if (permissoesLista.length === 0) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Permissões de usuários não encontrados ou não existentes no sistema.", permissoesLista);
             RespostaHTTP.mostrarMensagem();
-            return res.status(404).json(RespostaHTTP.returnJSON);
+            return res.status(404).json(RespostaHTTP.returnJSON());
         };
 
         const RespostaHTTP = new ResponseHTTP(true, 200, "Permissões de usuários do sistema listados com sucesso.", permissoesLista);
         RespostaHTTP.mostrarMensagem();
-        return res.status(200).json(RespostaHTTP.returnJSON);
+        return res.status(200).json(RespostaHTTP.returnJSON());
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de permissões de usuários sob projetos do sistema.", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -55,7 +62,7 @@ const listaPermissaoID = async (req: Request, res: Response): Promise<Response |
         if (Number.isNaN(ID) || !ID) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "ID de Permissão não foi fornecido ou é inválido.");
             RespostaHTTP.mostrarMensagem();
-            return res.status(400).json(RespostaHTTP.returnJSON);
+            return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
         const permissaoID: Permissao | null = await Permissao.findByPk(Number(ID), {
@@ -68,17 +75,17 @@ const listaPermissaoID = async (req: Request, res: Response): Promise<Response |
         if (!permissaoID) {
             const RespostaHTTP = new ResponseHTTP(false, 404, "Permissão de usuário relacionada ao ID não foi encontrado ou não existe no sistema.");
             RespostaHTTP.mostrarMensagem();
-            return res.status(404).json(RespostaHTTP.returnJSON);
+            return res.status(404).json(RespostaHTTP.returnJSON());
         };
 
         const RespostaHTTP = new ResponseHTTP(true, 200, "Permissão de usuário listado por ID com sucesso.", permissaoID);
         RespostaHTTP.mostrarMensagem();
-        return res.status(200).json(RespostaHTTP.returnJSON);
+        return res.status(200).json(RespostaHTTP.returnJSON());
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "Erro na listagem de permissão de usuário sob projeto do sistema por ID.", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -90,13 +97,13 @@ const atribuiPermissao = async (req: Request, res: Response): Promise<Response |
         if (!dadosRequisicao.success) {
             const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de atribuição de permissão.", null, dadosRequisicao.error);
             RespostaHTTP.mostrarMensagem();
-            return res.status(400).json(RespostaHTTP.returnJSON);
+            return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -108,7 +115,7 @@ const editaPermissao = async (req: Request, res: Response): Promise<Response | v
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 
@@ -120,7 +127,7 @@ const revogaPermissao = async (req: Request, res: Response): Promise<Response | 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
         RespostaHTTP.mostrarMensagem();
-        return res.status(500).json(RespostaHTTP.returnJSON);
+        return res.status(500).json(RespostaHTTP.returnJSON());
     };
 };
 

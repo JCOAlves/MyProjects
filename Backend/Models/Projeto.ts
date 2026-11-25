@@ -70,7 +70,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
         through: () => Usuario_projeto,
         foreignKey: "ID_projeto",
         otherKey: "ID_usuario",
-        inverse: { as: "usuarios" }
+        inverse: { as: "projetos" }
     })
     declare usuarios?: NonAttribute<Usuario[]>;
 };

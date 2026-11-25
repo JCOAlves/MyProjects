@@ -74,7 +74,7 @@ export class Usuario extends Model<InferAttributes<Usuario>, InferCreationAttrib
         through: () => Usuario_projeto,
         foreignKey: "ID_usuario",
         otherKey: "ID_projeto",
-        inverse: { as: "projetos" }
+        inverse: { as: "usuarios" }
     })
     declare projetos?: NonAttribute<Projeto[]>;
 };

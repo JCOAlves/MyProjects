@@ -5,7 +5,7 @@ import { listaAnotacoes, listaAnotacaoID, cadastraAnotacao, editaAnotacao, delet
 const app = express.Router();
 
 app.get("/", listaAnotacoes);
-app.get("/ID", listaAnotacaoID);
+app.get("/:ID", listaAnotacaoID);
 app.post("/", cadastraAnotacao);
 app.put("/:ID", editaAnotacao);
 app.delete("/:ID", deletaAnotacao);

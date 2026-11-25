@@ -15,7 +15,7 @@ dotenv.config();
 
 const configBD = {
     dialect: MySqlDialect,
-    database: process.env.NOME_BD || "nome_do_banco",
+    database: process.env.NOME_BD || "myproject_bd",
     user: process.env.USUARIO_BD || "root",
     password: process.env.SENHA_BD || "",
     host: process.env.HOST_BD || "localhost",

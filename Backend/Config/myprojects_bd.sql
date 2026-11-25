@@ -1,9 +1,9 @@
 -- Banco de dados da aplicação MyProjects
-CREATE DATABASE myproject_bd;
+CREATE DATABASE IF NOT EXISTS myproject_bd;
 USE myproject_bd;
 
 -- Criação da tabela de usuários
-CREATE TABLE usuario (
+CREATE TABLE IF NOT EXISTS usuario (
     ID_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nomeUsuario VARCHAR(100) NOT NULL,
     nicknameUsuario VARCHAR(12) NOT NULL UNIQUE,
@@ -12,9 +12,9 @@ CREATE TABLE usuario (
 );
 
 -- Criação da tabela de projetos
-CREATE TABLE projeto (
+CREATE TABLE IF NOT EXISTS projeto (
     ID_projeto INT AUTO_INCREMENT PRIMARY KEY,
-    nomeprojeto VARCHAR(120) DEFAULT 'Sem Nome',
+    nomeprojeto VARCHAR(120) NOT NULL DEFAULT 'Sem Nome',
     descricaoProjeto TEXT NOT NULL,
     dataEntrega DATETIME NOT NULL,
     projetoPublico BOOLEAN DEFAULT FALSE,
@@ -23,7 +23,7 @@ CREATE TABLE projeto (
 );
 
 -- Criação da tabela intermediaria de usuários e projetos
-CREATE TABLE usuario_projeto (
+CREATE TABLE IF NOT EXISTS usuario_projeto (
     ID_relacionamento INT AUTO_INCREMENT PRIMARY KEY,
     ID_usuario INT NOT NULL,
     FOREIGN KEY (ID_usuario) REFERENCES usuario(ID_usuario) ON DELETE CASCADE,
@@ -32,8 +32,9 @@ CREATE TABLE usuario_projeto (
 );
 
 -- Criação da tabela de tarefas do projeto
-CREATE TABLE tarefa (
+CREATE TABLE IF NOT EXISTS tarefa (
     ID_tarefa INT AUTO_INCREMENT PRIMARY KEY,
+    descricaoTarefa TEXT NOT NULL,
     nomeTarefa VARCHAR(100) NOT NULL,
     dataInicio DATETIME NOT NULL,
     dataFim DATETIME NOT NULL,
@@ -44,7 +45,7 @@ CREATE TABLE tarefa (
 );
 
 -- Criação da tabela de permissões de usuários com os projetos
-CREATE TABLE permissao (
+CREATE TABLE IF NOT EXISTS permissao (
     ID_permissao INT AUTO_INCREMENT PRIMARY KEY,
     tipoPermissao ENUM('R-PTA', 'CRUD-A', 'CRUD-TA','CRUD-PTA'),
     valorPermissao INT NOT NULL,
@@ -55,7 +56,7 @@ CREATE TABLE permissao (
 );
 
 -- Criação da tabela anotações de projetos
-CREATE TABLE anotacao (
+CREATE TABLE IF NOT EXISTS anotacao (
     ID_anotacao INT AUTO_INCREMENT PRIMARY KEY,
     textoAnotacao TEXT NOT NULL,
     ID_projeto INT NOT NULL,
