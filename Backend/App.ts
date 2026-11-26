@@ -20,7 +20,7 @@ verificacaoBD(); // Verificar erro em modelo Usuario_projeto
 app.use(CORS);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  res.send(`<h1 style="text-align: center; margin-top: 40px;">Servidor rodando em http://${HOST}:${PORT}</h1>`);
 });
 
 app.use("/usuarios", UsuarioRoutes);
@@ -30,10 +30,10 @@ app.use("/tarefas", TarefaRoutes);
 app.use("/permissoes", PermissaoRoutes);
 
 app.all("/*notfound", (req: Request, res: Response) => {
-  console.log("Rota não encontrada ou não existente.");
-  res.status(404).send("Rota não encontrada ou não existente.");
+  console.log("Rota de API não encontrada ou não existente.");
+  res.status(404).send("Rota de API não encontrada ou não existente.");
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://${HOST}:${PORT}`);
+    console.log(`\n---| Servidor rodando em http://${HOST}:${PORT} |---`);
 });
