@@ -5,6 +5,7 @@ import Usuario from "../Models/Usuario.ts";
 import Projeto from "../Models/Projeto.ts";
 import dadosUsuario from "../Validates/validateUsuario.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
+import { criptografiaSenha } from "../Config/criptografiaSenha.ts";
 
 // Melhorar INNER JOIN
 
@@ -80,14 +81,38 @@ const listaUsuarioID = async (req: Request, res: Response): Promise<Response | v
 const cadastraUsuario = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosUsuario.safeParse(req.body);
+        const { success, data, error } = dadosRequisicao;
 
-        if (!dadosRequisicao.success) {
-            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de usuário", null, dadosRequisicao.error);
+        if (!success) {
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de usuário", null, error);
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
+        const nicknameExistente: Usuario | null = await Usuario.findOne({ where: { nicknameUsuario: data.nicknameUsuario } });
+        if (nicknameExistente) {
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Já existe um usuário no sistema com o nickname fornecido", null);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(400).json(RespostaHTTP.returnJSON());
+        };
 
+        const emailExistente: Usuario | null = await Usuario.findOne({ where: { emailUsuario: data.emailUsuario } });
+        if (emailExistente) {
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Já existe um usuário no sistema com o endereço de email fornecido", null);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(400).json(RespostaHTTP.returnJSON());
+        };
+
+        data.senhaUsuario = await criptografiaSenha(data.senhaUsuario);
+
+        const novoUsuario = await Usuario.create(data);
+        if (novoUsuario) {
+            const { ID_usuario, nomeUsuario, nicknameUsuario, emailUsuario } = novoUsuario;
+            const dadosRegistrados = { ID_usuario: ID_usuario, nomeUsuario: nomeUsuario, nicknameUsuario: nicknameUsuario, emailUsuario: emailUsuario }
+            const RespostaHTTP = new ResponseHTTP(true, 200, "Novo usuário cadastrado no sistema com sucesso", dadosRegistrados);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(200).json(RespostaHTTP.returnJSON());
+        };
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "Erro no cadastro de novo usuário no sistema", null, error);

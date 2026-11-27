@@ -28,7 +28,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
 
     @Attribute({ type: DataTypes.TEXT })
     @NotNull
-    declare descricaoTarefa: string;
+    declare descricaoTarefa: CreationOptional<string>;
 
     @Attribute({
         type: DataTypes.DATE, validate: {
@@ -43,7 +43,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
         }
     })
     @NotNull
-    declare dataInicio: string;
+    declare dataInicio: CreationOptional<string>;
 
     @Attribute({
         type: DataTypes.DATE, validate: {
@@ -58,7 +58,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
         }
     })
     @NotNull
-    declare dataFim: string;
+    declare dataFim: CreationOptional<string>;
 
     @Attribute({ type: DataTypes.ENUM("Não Iniciada", "Em Desenvolvimento", "Concluída") })
     @Default("Não Iniciada")
@@ -67,7 +67,7 @@ class Tarefa extends Model<InferAttributes<Tarefa>, InferCreationAttributes<Tare
     @Attribute({ type: DataTypes.DATE })
     @NotNull
     @Default(DataTypes.NOW)
-    declare dataCriacao: CreationOptional<Date>;
+    declare dataCriacao: CreationOptional<string>;
 
     // Chave Estrangeira de ID Projeto
     @Attribute({ type: DataTypes.INTEGER })

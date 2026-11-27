@@ -9,9 +9,13 @@ const mensagensErros = {
         "Use o formato YYYY-MM-DD HH:mm:ss.",
         "Data e hora de entrega do projeto do calendário inválida."
     ],
+    usuario: [
+        "ID de usuario não fornecido ou ID inválido.",
+        "ID de usuario é menor que 1."
+    ]
 };
 
-const { nome, dataEntrega } = mensagensErros;
+const { nome, dataEntrega, usuario } = mensagensErros;
 const dataSemTRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 
 const parametrosValidade = {
@@ -29,6 +33,7 @@ const parametrosValidade = {
             { message: dataEntrega[1] }
         ).optional(),
     projetoPublico: z.boolean().optional(),
+    ID_usuario: z.number(usuario[0]).gte(1, usuario[1]),
 };
 
 const dadosProjeto = z.object(parametrosValidade);

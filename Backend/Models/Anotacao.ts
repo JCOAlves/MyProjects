@@ -28,7 +28,7 @@ class Anotacao extends Model<InferAttributes<Anotacao>, InferCreationAttributes<
     @Attribute({ type: DataTypes.DATE })
     @NotNull
     @Default(DataTypes.NOW)
-    declare dataCriacao: CreationOptional<Date>;
+    declare dataCriacao: CreationOptional<string>;
 
     // Chave Estrangeira de ID Projeto
     @Attribute({ type: DataTypes.INTEGER })

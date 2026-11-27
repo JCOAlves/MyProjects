@@ -3,6 +3,7 @@ import { type Request, type Response } from "express";
 import { Op } from '@sequelize/core';
 import Projeto from "../Models/Projeto.ts";
 import Usuario from "../Models/Usuario.ts";
+import Usuario_projeto from "../Models/Usuario_projeto.ts";
 import dadosProjeto from "../Validates/validateProjeto.ts";
 import ResponseHTTP from "../Config/RespostaHTTP.ts";
 
@@ -86,15 +87,39 @@ const listaProjetoID = async (req: Request, res: Response): Promise<Response | v
 const cadastraProjeto = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosProjeto.safeParse(req.body);
+        const { success, data, error } = dadosRequisicao;
 
-        if (!dadosRequisicao.success) {
-            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de projeto", null, dadosRequisicao.error);
+        if (!success) {
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de projeto", null, error);
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
+        const { nomeProjeto, descricaoProjeto, dataEntrega, projetoPublico, ID_usuario } = data;
+        const dadosNovos = { 
+            nomeProjeto: nomeProjeto,
+            descricaoProjeto: descricaoProjeto || "",
+            dataEntrega: dataEntrega || "",
+            projetoPublico: projetoPublico ? true : false
+        };
+
+        const usuarioExistente: Usuario | null = await Usuario.findByPk(ID_usuario);
+        if (!usuarioExistente) {
+            const RespostaHTTP = new ResponseHTTP(false, 404, "Usuário relacionado ao ID não foi encontrado ou não existe no sistema");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(404).json(RespostaHTTP.returnJSON());
+        };
+
+        const novoProjeto: Projeto | null = await Projeto.create(dadosNovos);
+        const usuario_projeto: Usuario_projeto | null = await Usuario_projeto.create({ ID_usuario: ID_usuario, ID_projeto: novoProjeto.ID_projeto });
+        if (novoProjeto && usuario_projeto){
+            const RespostaHTTP = new ResponseHTTP(true, 200, "Novo projeto cadastrado no sistema com sucesso", novoProjeto);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(200).json(RespostaHTTP.returnJSON());
+        };
+
     } catch (error) {
-        const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);
+        const RespostaHTTP = new ResponseHTTP(false, 500, "Erro no cadastro de novo projeto no sistema", null, error);
         RespostaHTTP.mostrarMensagem();
         return res.status(500).json(RespostaHTTP.returnJSON());
     };

@@ -89,13 +89,27 @@ const listaTarefaID = async (req: Request, res: Response): Promise<Response | vo
 const cadastraTarefa = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosTarefa.safeParse(req.body);
+        const { success, data, error } = dadosRequisicao;
 
-        if (!dadosRequisicao.success) {
-            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de tarefa", null, dadosRequisicao.error);
+        if (!success) {
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de criação de tarefa", null, error);
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON());
         };
 
+        const projetoExistente = await Projeto.findByPk(data.ID_projeto);
+        if (!projetoExistente){
+            const RespostaHTTP = new ResponseHTTP(false, 404, "Projeto relacionado ao ID não foi encontrado ou não existe no sistema");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(404).json(RespostaHTTP.returnJSON());
+        };
+
+        const novaTarefa = await Tarefa.create(data);
+        if (novaTarefa){
+            const RespostaHTTP = new ResponseHTTP(true, 200, "Nova tarefa de projeto cadastrada no sistema com sucesso", novaTarefa);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(200).json(RespostaHTTP.returnJSON());
+        };
 
     } catch (error) {
         const RespostaHTTP = new ResponseHTTP(false, 500, "", null, error);

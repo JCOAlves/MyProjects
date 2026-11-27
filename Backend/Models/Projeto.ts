@@ -33,7 +33,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
 
     @Attribute({ type: DataTypes.TEXT })
     @NotNull
-    declare descricaoProjeto: string;
+    declare descricaoProjeto: CreationOptional<string>;
 
     @Attribute({
         type: DataTypes.DATE, validate: {
@@ -48,7 +48,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
         }
     })
     @NotNull
-    declare dataEntrega: Date;
+    declare dataEntrega: CreationOptional<string>;
 
     @Attribute({ type: DataTypes.BOOLEAN })
     @NotNull
@@ -63,7 +63,7 @@ class Projeto extends Model<InferAttributes<Projeto>, InferCreationAttributes<Pr
     @Attribute({ type: DataTypes.DATE })
     @NotNull
     @Default(DataTypes.NOW)
-    declare dataCriacao: CreationOptional<Date>;
+    declare dataCriacao: CreationOptional<string>;
 
     // Relacionamento N:M de Usuários e Projetos
     @BelongsToMany(() => Usuario, {

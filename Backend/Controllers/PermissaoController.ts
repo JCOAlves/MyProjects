@@ -1,5 +1,6 @@
 // Funções CRUD das rotas de Permissão
 import { type Request, type Response } from "express";
+import { Op } from '@sequelize/core';
 import Permissao from "../Models/Permissao.ts";
 import Usuario from "../Models/Usuario.ts";
 import Projeto from "../Models/Projeto.ts";
@@ -97,11 +98,41 @@ const listaPermissaoID = async (req: Request, res: Response): Promise<Response |
 const atribuiPermissao = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const dadosRequisicao = dadosPermissao.safeParse(req.body);
+        const { success, data, error } = dadosRequisicao;
 
-        if (!dadosRequisicao.success) {
-            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de atribuição de permissão", null, dadosRequisicao.error);
+        if (!success) {
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Erro nos dados enviados na requisição de atribuição de permissão", null, error);
             RespostaHTTP.mostrarMensagem();
             return res.status(400).json(RespostaHTTP.returnJSON());
+        };
+
+        const usuarioExistente: Usuario | null = await Usuario.findByPk(data.ID_usuario);
+        if (!usuarioExistente) {
+            const RespostaHTTP = new ResponseHTTP(false, 404, "Usuário relacionado ao ID não foi encontrado ou não existe no sistema");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(404).json(RespostaHTTP.returnJSON());
+        };
+
+        const projetoExistente = await Projeto.findByPk(data.ID_projeto);
+        if (!projetoExistente){
+            const RespostaHTTP = new ResponseHTTP(false, 404, "Projeto relacionado ao ID não foi encontrado ou não existe no sistema");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(404).json(RespostaHTTP.returnJSON());
+        };
+
+        const { ID_projeto, ID_usuario } = data;
+        const permissaoExistente: Permissao | null = await Permissao.findOne({ where: { [Op.or]: { ID_projeto: ID_projeto, ID_usuario: ID_usuario } } });
+        if(permissaoExistente){
+            const RespostaHTTP = new ResponseHTTP(false, 400, "Usuário já possui uma permissão relacionada ao projeto");
+            RespostaHTTP.mostrarMensagem();
+            return res.status(400).json(RespostaHTTP.returnJSON());
+        };
+
+        const novaPermissao = await Permissao.create(data);
+        if (novaPermissao){
+            const RespostaHTTP = new ResponseHTTP(true, 200, "Nova permissão de projeto do sistema atribuida com sucesso ao usuário", novaPermissao);
+            RespostaHTTP.mostrarMensagem();
+            return res.status(200).json(RespostaHTTP.returnJSON());
         };
 
     } catch (error) {
